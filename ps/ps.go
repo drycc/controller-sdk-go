@@ -83,42 +83,6 @@ func Logs(c *drycc.Client, appID, podID string, request api.PodLogsRequest) (*we
 	return conn, nil
 }
 
-// Scale increases or decreases an app's processes. The processes are specified in the target argument,
-// a key-value map, where the key is the process name and the value is the number of replicas
-func Scale(c *drycc.Client, appID string, targets map[string]int) error {
-	u := fmt.Sprintf("/v2/apps/%s/scale/", appID)
-
-	body, err := json.Marshal(targets)
-
-	if err != nil {
-		return err
-	}
-
-	res, err := c.Request("POST", u, body)
-	if err != nil && !drycc.IsErrAPIMismatch(err) {
-		return err
-	}
-	defer res.Body.Close()
-	return err
-}
-
-// Restart restarts an app's processes. To restart all app processes, pass empty strings for
-// procType and name. To restart an specific process, pass an procType by leave name empty.
-// To restart a specific instance, pass a procType and a name.
-func Restart(c *drycc.Client, appID string, targets map[string]string) error {
-	u := fmt.Sprintf("/v2/apps/%s/pods/restart/", appID)
-	body, err := json.Marshal(targets)
-	if err != nil {
-		return err
-	}
-	res, err := c.Request("POST", u, body)
-	if err != nil && !drycc.IsErrAPIMismatch(err) {
-		return err
-	}
-	defer res.Body.Close()
-	return err
-}
-
 // Describe pod state
 func Describe(c *drycc.Client, appID string, podID string, results int) (api.PodState, int, error) {
 	u := fmt.Sprintf("/v2/apps/%s/pods/%s/describe/", appID, podID)
