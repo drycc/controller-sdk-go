@@ -65,6 +65,8 @@ const podStateFixture string = `
 	}]
 }`
 
+const podDeleteExpected string = `{"pod_ids":"test-pod-web"}`
+
 type fakeHTTPServer struct{}
 
 func (fakeHTTPServer) ServeHTTP(res http.ResponseWriter, req *http.Request) {
@@ -77,6 +79,23 @@ func (fakeHTTPServer) ServeHTTP(res http.ResponseWriter, req *http.Request) {
 
 	if req.URL.Path == "/v2/apps/example-go/pods/test-pod-web/describe/" && req.Method == "GET" {
 		res.Write([]byte(podStateFixture))
+		return
+	}
+	if req.URL.Path == "/v2/apps/example-go/pods/" && req.Method == "DELETE" {
+		body, err := io.ReadAll(req.Body)
+
+		if err != nil {
+			fmt.Println(err)
+			res.WriteHeader(http.StatusInternalServerError)
+			res.Write(nil)
+		}
+		if string(body) != podDeleteExpected {
+			fmt.Printf("Expected '%s', Got '%s'\n", podDeleteExpected, body)
+			res.WriteHeader(http.StatusInternalServerError)
+			res.Write(nil)
+			return
+		}
+		res.WriteHeader(http.StatusNoContent)
 		return
 	}
 
@@ -299,5 +318,22 @@ func TestByType(t *testing.T) {
 
 	if !reflect.DeepEqual(actual, expected) {
 		t.Errorf("Expected: %v, Got %v", expected, actual)
+	}
+}
+
+func TestPodsDelete(t *testing.T) {
+	t.Parallel()
+
+	handler := fakeHTTPServer{}
+	server := httptest.NewServer(handler)
+	defer server.Close()
+
+	drycc, err := drycc.New(false, server.URL, "abc")
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if err = Delete(drycc, "example-go", "test-pod-web"); err != nil {
+		t.Fatal(err)
 	}
 }

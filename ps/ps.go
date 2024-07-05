@@ -99,6 +99,23 @@ func Describe(c *drycc.Client, appID string, podID string, results int) (api.Pod
 	return podState, count, reqErr
 }
 
+// delete a pod
+func Delete(c *drycc.Client, appID string, podIDs string) error {
+	u := fmt.Sprintf("/v2/apps/%s/pods/", appID)
+
+	req := api.PodIDs{PodIDs: podIDs}
+
+	body, err := json.Marshal(req)
+	if err != nil {
+		return err
+	}
+	res, err := c.Request("DELETE", u, body)
+	if err == nil {
+		res.Body.Close()
+	}
+	return err
+}
+
 // ByType organizes processes of an app by process type.
 func ByType(processes api.PodsList) api.PodTypes {
 	var pts api.PodTypes
