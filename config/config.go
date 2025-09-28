@@ -48,7 +48,7 @@ func Set(c *drycc.Client, app string, config api.Config, merge bool) (api.Config
 	}
 
 	u := fmt.Sprintf("/v2/apps/%s/config/", app)
-	if !merge {
+	if merge {
 		u += "?merge=true"
 	}
 
