@@ -118,9 +118,8 @@ const volumeUnmountFixture string = `
 `
 
 const (
-	volumeMountExpected       string = `{"path":{"cmd":"/data/cmd1","web":"/data/web1"}}`
-	volumeUnmountExpected     string = `{"path":{"cmd":null,"web":null}}`
-	volumeFileContentExpected string = `test file content`
+	volumeMountExpected   string = `{"path":{"cmd":"/data/cmd1","web":"/data/web1"}}`
+	volumeUnmountExpected string = `{"path":{"cmd":null,"web":null}}`
 )
 
 type fakeHTTPServer struct{}
@@ -231,7 +230,7 @@ func (f *fakeHTTPServer) ServeHTTP(res http.ResponseWriter, req *http.Request) {
 	if req.URL.Path == "/v2/apps/example-go/volumes/myvolume/filer/_/bind" && req.Method == "POST" {
 		res.Header().Add("Content-Type", "application/json")
 		res.WriteHeader(http.StatusOK)
-		res.Write([]byte(`{"host":"localhost","port":"8080"}`))
+		res.Write([]byte(`{"username":"user","password":"pass"}`))
 		return
 	}
 
@@ -505,8 +504,9 @@ func TestVolumeServe(t *testing.T) {
 	}
 
 	expectedFiler := map[string]string{
-		"host": "localhost",
-		"port": "8080",
+		"endpoint": fmt.Sprintf("%s/v2/apps/example-go/volumes/myvolume/filer/webdav/", server.URL),
+		"username": "user",
+		"password": "pass",
 	}
 
 	parentCtx, cancel := context.WithCancel(context.Background())

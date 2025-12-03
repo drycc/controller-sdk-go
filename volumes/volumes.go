@@ -82,8 +82,8 @@ func Expand(c *drycc.Client, appID string, volume api.Volume) (api.Volume, error
 
 // Serve serves an app's volume.
 func Serve(parent context.Context, c *drycc.Client, appID, name string) (context.Context, map[string]string, error) {
-	u := fmt.Sprintf("/v2/apps/%s/volumes/%s/filer/_/bind", appID, name)
-	res, err := c.Request("POST", u, nil)
+	basePath := fmt.Sprintf("/v2/apps/%s/volumes/%s/filer", appID, name)
+	res, err := c.Request("POST", fmt.Sprintf("%s/_/bind", basePath), nil)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -100,8 +100,7 @@ func Serve(parent context.Context, c *drycc.Client, appID, name string) (context
 			case <-parent.Done():
 				return
 			default:
-				u := fmt.Sprintf("/v2/apps/%s/volumes/%s/filer/_/ping", appID, name)
-				res, err := c.Request("GET", u, nil)
+				res, err := c.Request("GET", fmt.Sprintf("%s/_/ping", basePath), nil)
 				if err != nil {
 					return
 				}
@@ -112,6 +111,7 @@ func Serve(parent context.Context, c *drycc.Client, appID, name string) (context
 			}
 		}
 	}()
+	filer["endpoint"] = fmt.Sprintf("%s%s/webdav/", c.ControllerURL, basePath)
 	return ctx, filer, nil
 }
 
