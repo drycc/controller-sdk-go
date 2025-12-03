@@ -2,8 +2,10 @@
 package volumes
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
+	"time"
 
 	drycc "github.com/drycc/controller-sdk-go"
 	"github.com/drycc/controller-sdk-go/api"
@@ -76,6 +78,41 @@ func Expand(c *drycc.Client, appID string, volume api.Volume) (api.Volume, error
 		return api.Volume{}, err
 	}
 	return newVolume, reqErr
+}
+
+// Serve serves an app's volume.
+func Serve(parent context.Context, c *drycc.Client, appID, name string) (context.Context, map[string]string, error) {
+	u := fmt.Sprintf("/v2/apps/%s/volumes/%s/filer/_/bind", appID, name)
+	res, err := c.Request("POST", u, nil)
+	if err != nil {
+		return nil, nil, err
+	}
+	defer res.Body.Close()
+	var filer map[string]string
+	if err = json.NewDecoder(res.Body).Decode(&filer); err != nil {
+		return nil, nil, err
+	}
+	ctx, cancel := context.WithCancel(parent)
+	go func() {
+		defer cancel()
+		for {
+			select {
+			case <-parent.Done():
+				return
+			default:
+				u := fmt.Sprintf("/v2/apps/%s/volumes/%s/filer/_/ping", appID, name)
+				res, err := c.Request("GET", u, nil)
+				if err != nil {
+					return
+				}
+				if err := res.Body.Close(); err != nil {
+					return
+				}
+				time.Sleep(time.Second * 30)
+			}
+		}
+	}()
+	return ctx, filer, nil
 }
 
 // Delete delete an app's Volume.

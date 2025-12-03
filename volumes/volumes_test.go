@@ -1,12 +1,12 @@
 package volumes
 
 import (
+	"context"
 	"fmt"
 	"io"
 	"net/http"
 	"net/http/httptest"
 	"reflect"
-	"strings"
 	"testing"
 
 	drycc "github.com/drycc/controller-sdk-go"
@@ -118,8 +118,9 @@ const volumeUnmountFixture string = `
 `
 
 const (
-	volumeMountExpected   string = `{"path":{"cmd":"/data/cmd1","web":"/data/web1"}}`
-	volumeUnmountExpected string = `{"path":{"cmd":null,"web":null}}`
+	volumeMountExpected       string = `{"path":{"cmd":"/data/cmd1","web":"/data/web1"}}`
+	volumeUnmountExpected     string = `{"path":{"cmd":null,"web":null}}`
+	volumeFileContentExpected string = `test file content`
 )
 
 type fakeHTTPServer struct{}
@@ -152,50 +153,6 @@ func (f *fakeHTTPServer) ServeHTTP(res http.ResponseWriter, req *http.Request) {
 		res.Write([]byte(volumeGetFixture))
 		return
 	}
-	// Client
-	if strings.Contains(req.URL.Path, "/v2/apps/example-go/volumes/myvolume/files/") {
-		switch req.Method {
-		case "GET":
-			switch req.URL.Query().Get("action") {
-			case "get":
-				res.Header().Add("Content-Type", "application/octet-stream")
-				res.Write([]byte(volumeFileContentExpected))
-				return
-			case "list":
-				res.Header().Add("Content-Type", "application/json")
-				res.Write([]byte("[]"))
-				return
-			}
-		case "POST":
-			if err := req.ParseMultipartForm(1024 * 1024); err != nil {
-				return
-			}
-			for _, tmpFiles := range req.MultipartForm.File {
-				for _, tmpFile := range tmpFiles {
-					srcFile, err := tmpFile.Open()
-					if err != nil {
-						return
-					}
-					body, err := io.ReadAll(srcFile)
-					if err != nil {
-						return
-					}
-					if string(body) != volumeFileContentExpected {
-						fmt.Printf("Expected '%s', Got '%s'\n", volumeFileContentExpected, body)
-						res.WriteHeader(http.StatusInternalServerError)
-						res.Write(nil)
-						return
-					}
-				}
-			}
-			return
-		case "DELETE":
-			res.WriteHeader(http.StatusNoContent)
-			res.Write(nil)
-			return
-		}
-	}
-
 	// Expand
 	if req.URL.Path == "/v2/apps/example-go/volumes/myvolume/" && req.Method == "PATCH" {
 		body, err := io.ReadAll(req.Body)
@@ -267,6 +224,20 @@ func (f *fakeHTTPServer) ServeHTTP(res http.ResponseWriter, req *http.Request) {
 		}
 		res.WriteHeader(http.StatusOK)
 		res.Write([]byte(volumeUnmountFixture))
+		return
+	}
+
+	// Serve - bind
+	if req.URL.Path == "/v2/apps/example-go/volumes/myvolume/filer/_/bind" && req.Method == "POST" {
+		res.Header().Add("Content-Type", "application/json")
+		res.WriteHeader(http.StatusOK)
+		res.Write([]byte(`{"host":"localhost","port":"8080"}`))
+		return
+	}
+
+	// Serve - ping
+	if req.URL.Path == "/v2/apps/example-go/volumes/myvolume/filer/_/ping" && req.Method == "GET" {
+		res.WriteHeader(http.StatusOK)
 		return
 	}
 	fmt.Printf("Unrecognized URL %s\n", req.URL)
@@ -518,5 +489,43 @@ func TestVolumeUnmount(t *testing.T) {
 
 	if !reflect.DeepEqual(expected, actual) {
 		t.Errorf("Expected %v, Got %v", expected, actual)
+	}
+}
+
+func TestVolumeServe(t *testing.T) {
+	t.Parallel()
+
+	handler := fakeHTTPServer{}
+	server := httptest.NewServer(&handler)
+	defer server.Close()
+
+	drycc, err := drycc.New(false, server.URL, "abc")
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	expectedFiler := map[string]string{
+		"host": "localhost",
+		"port": "8080",
+	}
+
+	parentCtx, cancel := context.WithCancel(context.Background())
+	ctx, filer, err := Serve(parentCtx, drycc, "example-go", "myvolume")
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if !reflect.DeepEqual(expectedFiler, filer) {
+		t.Errorf("Expected filer %v, Got %v", expectedFiler, filer)
+	}
+
+	if ctx == nil {
+		t.Error("Expected non-nil context")
+	}
+	cancel()
+	select {
+	case <-ctx.Done():
+	default:
+		t.Error("Expected context to be cancelled")
 	}
 }
