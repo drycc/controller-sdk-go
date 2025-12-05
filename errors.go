@@ -118,7 +118,7 @@ func checkForErrors(res *http.Response) error {
 
 	switch res.StatusCode {
 	case 400:
-		bodyMap := make(map[string]interface{})
+		bodyMap := make(map[string]any)
 		if err := json.Unmarshal(out, &bodyMap); err != nil {
 			return unknownServerError(res.StatusCode, string(out))
 		}
@@ -211,7 +211,7 @@ func checkForErrors(res *http.Response) error {
 	case 405:
 		return ErrMethodNotAllowed
 	case 409:
-		bodyMap := make(map[string]interface{})
+		bodyMap := make(map[string]any)
 		if err := json.Unmarshal(out, &bodyMap); err != nil {
 			return unknownServerError(res.StatusCode, fmt.Sprintf(jsonParsingError, err, string(out)))
 		}
@@ -222,7 +222,7 @@ func checkForErrors(res *http.Response) error {
 		}
 		return unknownServerError(res.StatusCode, string(out))
 	case 422:
-		bodyMap := make(map[string]interface{})
+		bodyMap := make(map[string]any)
 		if err := json.Unmarshal(out, &bodyMap); err != nil {
 			return unknownServerError(res.StatusCode, fmt.Sprintf(jsonParsingError, err, string(out)))
 		}
@@ -237,9 +237,9 @@ func checkForErrors(res *http.Response) error {
 	}
 }
 
-func arrayContents(m map[string]interface{}, field string) []string {
+func arrayContents(m map[string]any, field string) []string {
 	if v, ok := m[field]; ok {
-		if a, ok := v.([]interface{}); ok {
+		if a, ok := v.([]any); ok {
 			sa := []string{}
 
 			for _, i := range a {
@@ -277,7 +277,7 @@ func unknownServerError(statusCode int, message string) error {
 }
 
 func scanResponse(
-	body map[string]interface{}, field string, errMsgs []string, completeMatch bool,
+	body map[string]any, field string, errMsgs []string, completeMatch bool,
 ) bool {
 	for _, msg := range errMsgs {
 		if arrayContains(msg, completeMatch, arrayContents(body, field)) {

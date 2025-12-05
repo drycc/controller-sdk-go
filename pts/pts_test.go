@@ -197,8 +197,8 @@ func TestDescribe(t *testing.T) {
 			Image:     "registry.drycc.cc/base/base",
 			Command:   []string{"bash", "-c"},
 			Args:      []string{"sleep", "3600s"},
-			ReadinessProbe: api.Healthcheck{
-				Exec: &api.ExecProbe{
+			ReadinessProbe: api.ContainerProbe{
+				Exec: &api.ExecAction{
 					Command: []string{"ls", "-la"},
 				},
 				FailureThreshold:    3,

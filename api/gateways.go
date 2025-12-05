@@ -20,10 +20,10 @@ type Gateway struct {
 
 // Listener represents a gateway listener configuration.
 type Listener struct {
-	Name          string      `json:"name,omitempty"`
-	Port          int         `json:"port,omitempty"`
-	Protocol      string      `json:"protocol,omitempty"`
-	AllowedRoutes interface{} `json:"allowedRoutes,omitempty"`
+	Name          string `json:"name,omitempty"`
+	Port          int    `json:"port,omitempty"`
+	Protocol      string `json:"protocol,omitempty"`
+	AllowedRoutes any    `json:"allowedRoutes,omitempty"`
 }
 
 // Address represents a gateway address configuration.

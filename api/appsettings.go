@@ -76,4 +76,4 @@ type Autoscale struct {
 }
 
 // Labels can contain any user-defined key value
-type Labels map[string]interface{}
+type Labels map[string]any

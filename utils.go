@@ -11,12 +11,12 @@ import (
 )
 
 // ParseEnv parses environment variables from a file.
-func ParseEnv(fileame string) (map[string]interface{}, error) {
+func ParseEnv(fileame string) (map[string]any, error) {
 	contents, err := os.ReadFile(fileame)
 	if err != nil {
 		return nil, err
 	}
-	configMap := make(map[string]interface{})
+	configMap := make(map[string]any)
 	regex := regexp.MustCompile(`^([A-z0-9_\-\.]+)=([\s\S]*)$`)
 	for _, config := range strings.Split(string(contents), "\n") {
 		// Skip config that starts with an comment
@@ -36,8 +36,8 @@ func ParseEnv(fileame string) (map[string]interface{}, error) {
 }
 
 // ParseDryccfile parses a Drycc configuration file.
-func ParseDryccfile(dryccpath string) (map[string]interface{}, error) {
-	config := make(map[string]interface{})
+func ParseDryccfile(dryccpath string) (map[string]any, error) {
+	config := make(map[string]any)
 	if entries, err := os.ReadDir(path.Join(dryccpath, "config")); err == nil {
 		for _, entry := range entries {
 			if !entry.IsDir() {
@@ -49,11 +49,11 @@ func ParseDryccfile(dryccpath string) (map[string]interface{}, error) {
 			}
 		}
 	}
-	pipeline := make(map[string]interface{})
+	pipeline := make(map[string]any)
 	if entries, err := os.ReadDir(dryccpath); err == nil {
 		for _, entry := range entries {
 			if !entry.IsDir() && (strings.HasSuffix(entry.Name(), ".yaml") || strings.HasSuffix(entry.Name(), ".yml")) {
-				data := make(map[string]interface{})
+				data := make(map[string]any)
 				if bytes, err := os.ReadFile(path.Join(dryccpath, entry.Name())); err == nil {
 					if err = yaml.Unmarshal([]byte(bytes), data); err == nil {
 						pipeline[entry.Name()] = data
@@ -67,7 +67,7 @@ func ParseDryccfile(dryccpath string) (map[string]interface{}, error) {
 		}
 	}
 
-	dryccfile := make(map[string]interface{})
+	dryccfile := make(map[string]any)
 	if len(config) > 0 {
 		dryccfile["config"] = config
 	}

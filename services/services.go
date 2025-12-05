@@ -26,12 +26,12 @@ func List(c *drycc.Client, appID string) (api.Services, error) {
 		return []api.Service{}, err
 	}
 
-	r := make(map[string]interface{})
+	r := make(map[string]any)
 	if err = json.Unmarshal([]byte(body), &r); err != nil {
 		return []api.Service{}, err
 	}
 
-	out, err := json.Marshal(r["services"].([]interface{}))
+	out, err := json.Marshal(r["services"].([]any))
 	if err != nil {
 		return []api.Service{}, err
 	}

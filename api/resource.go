@@ -44,13 +44,13 @@ type Resource struct {
 	// Resource's Plan
 	Plan string `json:"plan,omitempty"`
 	// Resource connet info
-	Data map[string]interface{} `json:"data,omitempty"`
+	Data map[string]any `json:"data,omitempty"`
 	// Resource's status
 	Status string `json:"status,omitempty"`
 	// Resource's binding status
 	Binding string `json:"binding,omitempty"`
 	// Resource Options
-	Options map[string]interface{} `json:"options,omitempty"`
+	Options map[string]any `json:"options,omitempty"`
 	// Resource instance message
 	Message string `json:"message,omitempty"`
 }

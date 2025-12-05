@@ -257,7 +257,7 @@ func TestDeploy(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	targets := map[string]interface{}{"types": "web,task"}
+	targets := map[string]any{"types": "web,task"}
 
 	err = Deploy(drycc, "example-go", targets)
 	if err != nil {

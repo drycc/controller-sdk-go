@@ -253,9 +253,9 @@ func TestVolumesCreate(t *testing.T) {
 		App:        "example-go",
 		Name:       "myvolume",
 		Size:       "500G",
-		Path:       map[string]interface{}{},
+		Path:       map[string]any{},
 		Type:       "csi",
-		Parameters: map[string]interface{}{},
+		Parameters: map[string]any{},
 		Created:    "2020-08-26T00:00:00UTC",
 		Updated:    "2020-08-26T00:00:00UTC",
 	}
@@ -291,9 +291,9 @@ func TestVolumesExpand(t *testing.T) {
 		App:        "example-go",
 		Name:       "myvolume",
 		Size:       "500G",
-		Path:       map[string]interface{}{},
+		Path:       map[string]any{},
 		Type:       "csi",
-		Parameters: map[string]interface{}{},
+		Parameters: map[string]any{},
 		Created:    "2020-08-26T00:00:00UTC",
 		Updated:    "2020-08-26T00:00:00UTC",
 	}
@@ -346,10 +346,10 @@ func TestVolumesList(t *testing.T) {
 			App:        "example-go",
 			Owner:      "test",
 			Name:       "myvolume",
-			Path:       map[string]interface{}{},
+			Path:       map[string]any{},
 			Size:       "500G",
 			Type:       "csi",
-			Parameters: map[string]interface{}{},
+			Parameters: map[string]any{},
 			Created:    "2020-08-26T00:00:00UTC",
 			Updated:    "2020-08-26T00:00:00UTC",
 		},
@@ -380,10 +380,10 @@ func TestVolumeGet(t *testing.T) {
 		App:        "example-go",
 		Owner:      "test",
 		Name:       "myvolume",
-		Path:       map[string]interface{}{},
+		Path:       map[string]any{},
 		Size:       "500G",
 		Type:       "csi",
-		Parameters: map[string]interface{}{},
+		Parameters: map[string]any{},
 		Created:    "2020-08-26T00:00:00UTC",
 		Updated:    "2020-08-26T00:00:00UTC",
 	}
@@ -422,20 +422,20 @@ func TestVolumeMount(t *testing.T) {
 		Name:  "myvolume",
 		Owner: "test",
 		App:   "example-go",
-		Path: map[string]interface{}{
+		Path: map[string]any{
 			"cmd": "/data/cmd1",
 			"web": "/data/web1",
 		},
 		Size:       "500G",
 		Type:       "csi",
-		Parameters: map[string]interface{}{},
+		Parameters: map[string]any{},
 		Created:    "2020-08-26T00:00:00UTC",
 		Updated:    "2020-08-26T00:00:00UTC",
 		UUID:       "de1bf5b5-4a72-4f94-a10c-d2a3741cdf75",
 	}
 
 	volumeVars := api.Volume{
-		Path: map[string]interface{}{
+		Path: map[string]any{
 			"cmd": "/data/cmd1",
 			"web": "/data/web1",
 		},
@@ -466,17 +466,17 @@ func TestVolumeUnmount(t *testing.T) {
 		Name:       "myvolume",
 		Owner:      "test",
 		App:        "unmount-test",
-		Path:       map[string]interface{}{},
+		Path:       map[string]any{},
 		Size:       "500G",
 		Type:       "csi",
-		Parameters: map[string]interface{}{},
+		Parameters: map[string]any{},
 		Created:    "2020-08-26T00:00:00UTC",
 		Updated:    "2020-08-26T00:00:00UTC",
 		UUID:       "de1bf5b5-4a72-4f94-a10c-d2a3741cdf75",
 	}
 
 	volumeVars := api.Volume{
-		Path: map[string]interface{}{
+		Path: map[string]any{
 			"cmd": nil,
 			"web": nil,
 		},

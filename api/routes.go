@@ -26,7 +26,7 @@ type ParentRef struct {
 }
 
 // RouteRule represents a rule in a route configuration.
-type RouteRule map[string]interface{}
+type RouteRule map[string]any
 
 // Routes defines a collection of Route objects.
 type Routes []Route

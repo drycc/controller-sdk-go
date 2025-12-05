@@ -59,17 +59,17 @@ func (p PodTypes) Less(i, j int) bool { return p[i].Ptype < p[j].Ptype }
 
 // ContainerState defines a container state.
 type ContainerState struct {
-	Container    string                            `json:"container"`
-	Image        string                            `json:"image"`
-	Command      []string                          `json:"command"`
-	Args         []string                          `json:"args"`
-	State        map[string]map[string]interface{} `json:"state"`
-	LastState    map[string]map[string]interface{} `json:"lastState"`
-	Ready        bool                              `json:"ready"`
-	RestartCount int                               `json:"restartCount"`
-	Status       string                            `json:"status"`
-	Reason       string                            `json:"reason"`
-	Message      string                            `json:"message"`
+	Container    string                    `json:"container"`
+	Image        string                    `json:"image"`
+	Command      []string                  `json:"command"`
+	Args         []string                  `json:"args"`
+	State        map[string]map[string]any `json:"state"`
+	LastState    map[string]map[string]any `json:"lastState"`
+	Ready        bool                      `json:"ready"`
+	RestartCount int                       `json:"restartCount"`
+	Status       string                    `json:"status"`
+	Reason       string                    `json:"reason"`
+	Message      string                    `json:"message"`
 }
 
 // PodState defines a collection of container state.

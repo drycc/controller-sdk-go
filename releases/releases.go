@@ -51,7 +51,7 @@ func Get(c *drycc.Client, appID string, version int) (api.Release, error) {
 // Deploy deploy an app's processes. To deploy all app processes, pass empty strings for
 // procType and name. To deploy an specific process, pass an procType by leave name empty.
 // To deploy a specific instance, pass a procType and a name.
-func Deploy(c *drycc.Client, appID string, targets map[string]interface{}) error {
+func Deploy(c *drycc.Client, appID string, targets map[string]any) error {
 	u := fmt.Sprintf("/v2/apps/%s/releases/deploy/", appID)
 	body, err := json.Marshal(targets)
 	if err != nil {

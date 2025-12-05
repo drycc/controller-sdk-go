@@ -7,7 +7,7 @@ type Mount struct {
 
 // Unmount is the definition of PATCH /v2/apps/<app_id>/volumes/<name>/path/.
 type Unmount struct {
-	Values map[string]interface{} `json:"values"`
+	Values map[string]any `json:"values"`
 }
 
 // Volume is the structure of an app's volume.
@@ -28,11 +28,11 @@ type Volume struct {
 	// Volume's size
 	Size string `json:"size,omitempty"`
 	// Volume's mount path
-	Path map[string]interface{} `json:"path,omitempty"`
+	Path map[string]any `json:"path,omitempty"`
 	// Volume's type
 	Type string `json:"type,omitempty"`
 	// Volume's parameters
-	Parameters map[string]interface{} `json:"parameters,omitempty"`
+	Parameters map[string]any `json:"parameters,omitempty"`
 }
 
 // Volumes is a collection of Volume.

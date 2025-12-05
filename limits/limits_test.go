@@ -220,24 +220,24 @@ func TestSpecs(t *testing.T) {
 	expected := []api.LimitSpec{
 		{
 			ID: "std1",
-			CPU: map[string]interface{}{
+			CPU: map[string]any{
 				"name":    "Unknown CPU",
 				"cores":   32,
 				"clock":   "3100MHZ",
 				"boost":   "3700MHZ",
 				"threads": 64,
 			},
-			Memory: map[string]interface{}{
+			Memory: map[string]any{
 				"size": "64GB",
 				"type": "DDR4-ECC",
 			},
-			Features: map[string]interface{}{
-				"gpu": map[string]interface{}{
+			Features: map[string]any{
+				"gpu": map[string]any{
 					"name":  "Unknown Integrated GPU",
 					"tmus":  1,
 					"rops":  1,
 					"cores": 128,
-					"memory": map[string]interface{}{
+					"memory": map[string]any{
 						"size": "shared",
 						"type": "shared",
 					},
@@ -274,24 +274,24 @@ func TestPlans(t *testing.T) {
 	t.Parallel()
 	spec := api.LimitSpec{
 		ID: "std1",
-		CPU: map[string]interface{}{
+		CPU: map[string]any{
 			"name":    "Unknown CPU",
 			"cores":   32,
 			"clock":   "3100MHZ",
 			"boost":   "3700MHZ",
 			"threads": 64,
 		},
-		Memory: map[string]interface{}{
+		Memory: map[string]any{
 			"size": "64GB",
 			"type": "DDR4-ECC",
 		},
-		Features: map[string]interface{}{
-			"gpu": map[string]interface{}{
+		Features: map[string]any{
+			"gpu": map[string]any{
 				"name":  "Unknown Integrated GPU",
 				"tmus":  1,
 				"rops":  1,
 				"cores": 128,
-				"memory": map[string]interface{}{
+				"memory": map[string]any{
 					"size": "shared",
 					"type": "shared",
 				},
@@ -312,7 +312,7 @@ func TestPlans(t *testing.T) {
 			Spec:   spec,
 			CPU:    1,
 			Memory: 1,
-			Features: map[string]interface{}{
+			Features: map[string]any{
 				"gpu":     1,
 				"network": 1,
 			},
@@ -323,7 +323,7 @@ func TestPlans(t *testing.T) {
 			Spec:   spec,
 			CPU:    1,
 			Memory: 2,
-			Features: map[string]interface{}{
+			Features: map[string]any{
 				"gpu":     1,
 				"network": 1,
 			},
@@ -352,24 +352,24 @@ func TestPlans(t *testing.T) {
 func TestGetPlan(t *testing.T) {
 	spec := api.LimitSpec{
 		ID: "std1",
-		CPU: map[string]interface{}{
+		CPU: map[string]any{
 			"name":    "Unknown CPU",
 			"cores":   32,
 			"clock":   "3100MHZ",
 			"boost":   "3700MHZ",
 			"threads": 64,
 		},
-		Memory: map[string]interface{}{
+		Memory: map[string]any{
 			"size": "64GB",
 			"type": "DDR4-ECC",
 		},
-		Features: map[string]interface{}{
-			"gpu": map[string]interface{}{
+		Features: map[string]any{
+			"gpu": map[string]any{
 				"name":  "Unknown Integrated GPU",
 				"tmus":  1,
 				"rops":  1,
 				"cores": 128,
-				"memory": map[string]interface{}{
+				"memory": map[string]any{
 					"size": "shared",
 					"type": "shared",
 				},
@@ -389,7 +389,7 @@ func TestGetPlan(t *testing.T) {
 		Spec:   spec,
 		CPU:    1,
 		Memory: 1,
-		Features: map[string]interface{}{
+		Features: map[string]any{
 			"gpu":     1,
 			"network": 1,
 		},

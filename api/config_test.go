@@ -6,7 +6,7 @@ import (
 )
 
 func TestHealthcheckString(t *testing.T) {
-	h := Healthcheck{}
+	h := ContainerProbe{}
 
 	expected := strings.TrimSpace(`Initial Delay (seconds): 0
 Timeout (seconds): 0
@@ -14,6 +14,7 @@ Period (seconds): 0
 Success Threshold: 0
 Failure Threshold: 0
 Exec Probe: N/A
+GRPC Probe: N/A
 HTTP GET Probe: N/A
 TCP Socket Probe: N/A`)
 
@@ -21,7 +22,7 @@ TCP Socket Probe: N/A`)
 		t.Errorf("Expected:\n\n%s\n\nGot:\n\n%s", expected, h.String())
 	}
 
-	h.HTTPGet = &HTTPGetProbe{
+	h.HTTPGet = &HTTPGetAction{
 		Path:        "/",
 		Port:        80,
 		HTTPHeaders: []*KVPair{{Name: "X-DRYCC-IS", Value: "AWESOME"}},
@@ -33,6 +34,7 @@ Period (seconds): 0
 Success Threshold: 0
 Failure Threshold: 0
 Exec Probe: N/A
+GRPC Probe: N/A
 HTTP GET Probe: Path="/" Port=80 HTTPHeaders=[X-DRYCC-IS=AWESOME]
 TCP Socket Probe: N/A`)
 
@@ -40,9 +42,12 @@ TCP Socket Probe: N/A`)
 		t.Errorf("Expected:\n\n%s\n\nGot:\n\n%s", expected, h.String())
 	}
 
-	h.Exec = &ExecProbe{Command: []string{"echo", "hi"}}
-
-	h.TCPSocket = &TCPSocketProbe{
+	h.Exec = &ExecAction{Command: []string{"echo", "hi"}}
+	h.GRPC = &GRPCAction{
+		Port:    80,
+		Service: "myservice",
+	}
+	h.TCPSocket = &TCPSocketAction{
 		Port: 80,
 	}
 
@@ -52,6 +57,7 @@ Period (seconds): 0
 Success Threshold: 0
 Failure Threshold: 0
 Exec Probe: Command=[echo hi]
+GRPC Probe: Port=80 Service="myservice"
 HTTP GET Probe: Path="/" Port=80 HTTPHeaders=[X-DRYCC-IS=AWESOME]
 TCP Socket Probe: Port=80`)
 

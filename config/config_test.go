@@ -225,7 +225,7 @@ func TestConfigSet(t *testing.T) {
 				},
 			},
 		},
-		Limits: map[string]interface{}{
+		Limits: map[string]any{
 			"web": "std1.xlarge.c1m1",
 		},
 		Tags: map[string]api.ConfigTags{
@@ -233,7 +233,7 @@ func TestConfigSet(t *testing.T) {
 				"test": "tests",
 			},
 		},
-		Registry: map[string]map[string]interface{}{
+		Registry: map[string]map[string]any{
 			"web": {
 				"username": "bob",
 			},
@@ -260,7 +260,7 @@ func TestConfigSet(t *testing.T) {
 				},
 			},
 		},
-		Limits: map[string]interface{}{
+		Limits: map[string]any{
 			"web": "std1.xlarge.c1m1",
 		},
 		Tags: map[string]api.ConfigTags{
@@ -268,7 +268,7 @@ func TestConfigSet(t *testing.T) {
 				"test": "tests",
 			},
 		},
-		Registry: map[string]map[string]interface{}{
+		Registry: map[string]map[string]any{
 			"web": {
 				"username": "bob",
 			},
@@ -301,9 +301,9 @@ func TestConfigUnset(t *testing.T) {
 		Owner:    "test",
 		App:      "unset-test",
 		Values:   []api.ConfigValue{},
-		Limits:   map[string]interface{}{},
+		Limits:   map[string]any{},
 		Tags:     map[string]api.ConfigTags{},
-		Registry: map[string]map[string]interface{}{},
+		Registry: map[string]map[string]any{},
 		Created:  "2014-01-01T00:00:00UTC",
 		Updated:  "2014-01-01T00:00:00UTC",
 		UUID:     "de1bf5b5-4a72-4f94-a10c-d2a3741cdf75",
@@ -319,13 +319,13 @@ func TestConfigUnset(t *testing.T) {
 				},
 			},
 		},
-		Limits: map[string]interface{}{
+		Limits: map[string]any{
 			"web": nil,
 		},
 		Tags: map[string]api.ConfigTags{
 			"web": {"test": nil},
 		},
-		Registry: map[string]map[string]interface{}{
+		Registry: map[string]map[string]any{
 			"web": {
 				"username": nil,
 			},
@@ -373,13 +373,13 @@ func TestConfigList(t *testing.T) {
 				},
 			},
 		},
-		Limits: map[string]interface{}{
+		Limits: map[string]any{
 			"web": "std1.xlarge.c1m1",
 		},
 		Tags: map[string]api.ConfigTags{
 			"web": {"test": "tests"},
 		},
-		Registry: map[string]map[string]interface{}{
+		Registry: map[string]map[string]any{
 			"web": {
 				"username": "bob",
 			},
@@ -433,9 +433,9 @@ func TestConfigRefs(t *testing.T) {
 				"myconfig1",
 			},
 		},
-		Limits:   map[string]interface{}{},
+		Limits:   map[string]any{},
 		Tags:     map[string]api.ConfigTags{},
-		Registry: map[string]map[string]interface{}{},
+		Registry: map[string]map[string]any{},
 		Created:  "2014-01-01T00:00:00UTC",
 		Updated:  "2014-01-01T00:00:00UTC",
 		UUID:     "de1bf5b5-4a72-4f94-a10c-d2a3741cdf76",

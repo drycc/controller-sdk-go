@@ -238,7 +238,7 @@ func TestDescribe(t *testing.T) {
 			Image:     "registry.drycc.cc/base/base",
 			Command:   []string{"bash", "-c"},
 			Args:      []string{"sleep 3600s"},
-			State: map[string]map[string]interface{}{
+			State: map[string]map[string]any{
 				"running": {
 					"startedAt": "2024-05-21T02:27:03+00:00",
 				},
@@ -247,7 +247,7 @@ func TestDescribe(t *testing.T) {
 					"reason":  "CreateContainerError",
 				},
 			},
-			LastState: map[string]map[string]interface{}{
+			LastState: map[string]map[string]any{
 				"terminated": {
 					"containerID": "cri-o://ccfc73b0b4d966af4f93ca871a04fa97460620cd8005c1c36f7734a08ba49ed0",
 					"exitCode":    1,

@@ -127,8 +127,8 @@ deploy:
 		t.Fatal(err)
 	}
 	if config, ok := dryccfile["config"]; ok {
-		webConfig := config.(map[string]interface{})["web"].(map[string]interface{})
-		globalConfig := config.(map[string]interface{})["global"].(map[string]interface{})
+		webConfig := config.(map[string]any)["web"].(map[string]any)
+		globalConfig := config.(map[string]any)["global"].(map[string]any)
 
 		if globalConfig["DEBUG"] != "true" {
 			t.Errorf("Expected %s, Got %s", "true", globalConfig["DEBUG"])
@@ -144,10 +144,10 @@ deploy:
 	}
 
 	if pipeline, ok := dryccfile["pipeline"]; ok {
-		if _, ok := pipeline.(map[string]interface{})["web.yml"]; !ok {
+		if _, ok := pipeline.(map[string]any)["web.yml"]; !ok {
 			t.Error("web.yml not found")
 		}
-		if _, ok := pipeline.(map[string]interface{})["task.yaml"]; !ok {
+		if _, ok := pipeline.(map[string]any)["task.yaml"]; !ok {
 			t.Error("task.yaml not found")
 		}
 	} else {

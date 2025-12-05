@@ -94,7 +94,7 @@ func TestBuildsGet(t *testing.T) {
 		Stack:      "container",
 		Owner:      "test",
 		Procfile:   map[string]string{"web": "example-go"},
-		Dryccfile:  map[string]interface{}{},
+		Dryccfile:  map[string]any{},
 		Sha:        "060da68f",
 		Updated:    "2014-01-01T00:00:00UTC",
 		UUID:       "de1bf5b5-4a72-4f94-a10c-d2a3741cdf75",
@@ -129,7 +129,7 @@ func TestBuildCreate(t *testing.T) {
 		Stack:     "heroku-18",
 		Owner:     "test",
 		Procfile:  map[string]string{"web": "example-go"},
-		Dryccfile: map[string]interface{}{},
+		Dryccfile: map[string]any{},
 		Updated:   "2014-01-01T00:00:00UTC",
 		UUID:      "de1bf5b5-4a72-4f94-a10c-d2a3741cdf75",
 	}
@@ -147,7 +147,7 @@ func TestBuildCreate(t *testing.T) {
 		"web": "example-go",
 	}
 
-	actual, err := New(drycc, "example-go", "drycc/example-go", "heroku-18", procfile, map[string]interface{}{})
+	actual, err := New(drycc, "example-go", "drycc/example-go", "heroku-18", procfile, map[string]any{})
 	if err != nil {
 		t.Fatal(err)
 	}

@@ -29,10 +29,10 @@ type AppUpdateRequest struct {
 
 // AppRunRequest is the definition of POST /v2/apps/<app id>/run.
 type AppRunRequest struct {
-	Command string                 `json:"command"`
-	Volumes map[string]interface{} `json:"volumes,omitempty"`
-	Timeout uint32                 `json:"timeout,omitempty"`
-	Expires uint32                 `json:"expires,omitempty"`
+	Command string         `json:"command"`
+	Volumes map[string]any `json:"volumes,omitempty"`
+	Timeout uint32         `json:"timeout,omitempty"`
+	Expires uint32         `json:"expires,omitempty"`
 }
 
 // AppLogsRequest is the definition of websocket /v2/apps/<app id>/logs

@@ -118,13 +118,13 @@ func TestGatewaysList(t *testing.T) {
 					Name:          "example-go-80-http",
 					Port:          80,
 					Protocol:      "HTTP",
-					AllowedRoutes: map[string]interface{}{"namespaces": map[string]interface{}{"from": "All"}},
+					AllowedRoutes: map[string]any{"namespaces": map[string]any{"from": "All"}},
 				},
 				{
 					Name:          "example-go-443-https",
 					Port:          443,
 					Protocol:      "HTTPS",
-					AllowedRoutes: map[string]interface{}{"namespaces": map[string]interface{}{"from": "All"}},
+					AllowedRoutes: map[string]any{"namespaces": map[string]any{"from": "All"}},
 				},
 			},
 			Addresses: []api.Address{

@@ -130,7 +130,7 @@ func TestAppSettingsSet(t *testing.T) {
 				CPUPercent: 40,
 			},
 		},
-		Label: map[string]interface{}{
+		Label: map[string]any{
 			"git_repo": "https://github.com/drycc/controller-sdk-go",
 			"team":     "drycc",
 		},
@@ -151,7 +151,7 @@ func TestAppSettingsSet(t *testing.T) {
 				CPUPercent: 40,
 			},
 		},
-		Label: map[string]interface{}{
+		Label: map[string]any{
 			"git_repo": "https://github.com/drycc/controller-sdk-go",
 			"team":     "drycc",
 		},
@@ -193,7 +193,7 @@ func TestAppSettingsUnset(t *testing.T) {
 				CPUPercent: 40,
 			},
 		},
-		Label: map[string]interface{}{
+		Label: map[string]any{
 			"git_repo": "https://github.com/drycc/controller-sdk-go",
 			"team":     "drycc",
 		},
@@ -214,7 +214,7 @@ func TestAppSettingsUnset(t *testing.T) {
 				CPUPercent: 40,
 			},
 		},
-		Label: map[string]interface{}{
+		Label: map[string]any{
 			"git_repo": "https://github.com/drycc/controller-sdk-go",
 			"team":     "drycc",
 		},
@@ -256,7 +256,7 @@ func TestAppSettingsList(t *testing.T) {
 				CPUPercent: 40,
 			},
 		},
-		Label: map[string]interface{}{
+		Label: map[string]any{
 			"git_repo": "https://github.com/drycc/controller-sdk-go",
 			"team":     "drycc",
 		},

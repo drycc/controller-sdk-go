@@ -179,7 +179,7 @@ func TestConfigHook(t *testing.T) {
 				},
 			},
 		},
-		Limits: map[string]interface{}{
+		Limits: map[string]any{
 			"web": "std1.xlarge.c1m1",
 		},
 		Tags: map[string]api.ConfigTags{
@@ -187,7 +187,7 @@ func TestConfigHook(t *testing.T) {
 				"test": "tests",
 			},
 		},
-		Registry: map[string]map[string]interface{}{
+		Registry: map[string]map[string]any{
 			"web": {
 				"username": "bob",
 			},
@@ -223,7 +223,7 @@ func TestBuildHook(t *testing.T) {
 
 	actual, err := CreateBuild(
 		drycc, "test", "example-go", "test:abc123", "heroku-18", "abc123",
-		map[string]string{"web": "./run"}, map[string]interface{}{}, "")
+		map[string]string{"web": "./run"}, map[string]any{}, "")
 	if err != nil {
 		t.Error(err)
 	}

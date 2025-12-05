@@ -24,9 +24,9 @@ type PtypeState struct {
 	Image          string            `json:"image"`
 	Command        []string          `json:"command,omitempty"`
 	Args           []string          `json:"args,omitempty"`
-	StartupProbe   Healthcheck       `json:"startup_probe,omitempty"`
-	LivenessProbe  Healthcheck       `json:"liveness_probe,omitempty"`
-	ReadinessProbe Healthcheck       `json:"readiness_probe,omitempty"`
+	StartupProbe   ContainerProbe    `json:"startup_probe,omitempty"`
+	LivenessProbe  ContainerProbe    `json:"liveness_probe,omitempty"`
+	ReadinessProbe ContainerProbe    `json:"readiness_probe,omitempty"`
 	Limits         map[string]string `json:"limits,omitempty"`
 	VolumeMounts   []VolumeMount     `json:"volume_mounts,omitempty"`
 	NodeSelector   map[string]string `json:"node_selector,omitempty"`

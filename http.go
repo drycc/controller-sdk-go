@@ -109,12 +109,12 @@ func (c *Client) LimitedRequest(path string, results int) (string, int, error) {
 		return "", -1, err
 	}
 
-	r := make(map[string]interface{})
+	r := make(map[string]any)
 	if err = json.Unmarshal([]byte(body), &r); err != nil {
 		return "", -1, err
 	}
 
-	out, err := json.Marshal(r["results"].([]interface{}))
+	out, err := json.Marshal(r["results"].([]any))
 	if err != nil {
 		return "", -1, err
 	}

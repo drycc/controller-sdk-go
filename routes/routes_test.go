@@ -182,7 +182,7 @@ func TestRoutesList(t *testing.T) {
 			},
 			Rules: []api.RouteRule{
 				{
-					"backendRefs": []map[string]interface{}{{
+					"backendRefs": []map[string]any{{
 						"kind":   "Service",
 						"name":   "example-go",
 						"port":   5000,
