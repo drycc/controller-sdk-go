@@ -40,6 +40,16 @@ const configFixtureV1 string = `
         "username": "bob"
       }
     },
+	"lifecycle": {
+	    "web": {
+		    "postStart": {
+			    "httpGet": {
+				    "path": "/",
+					"port": 5001
+				}
+			}
+		}
+	},
     "created": "2014-01-01T00:00:00UTC",
     "updated": "2014-01-01T00:00:00UTC",
     "uuid": "de1bf5b5-4a72-4f94-a10c-d2a3741cdf75"
@@ -73,6 +83,16 @@ const configFixtureV2 string = `
         "username": "bob"
       }
     },
+	"lifecycle": {
+	    "web": {
+		    "postStart": {
+			    "httpGet": {
+				    "path": "/",
+					"port": 5001
+				}
+			}
+		}
+	},
     "created": "2014-01-01T00:00:00UTC",
     "updated": "2014-01-01T00:00:00UTC",
     "uuid": "de1bf5b5-4a72-4f94-a10c-d2a3741cdf75"
@@ -109,7 +129,7 @@ const configSetRefsFixture string = `
 `
 
 const (
-	configSetExpected     string = `{"values":[{"group":"global","name":"NEW_URL2","value":"http://localhost:8080/"},{"ptype":"web","name":"NEW_URL","value":"http://localhost:8080"}],"limits":{"web":"std1.xlarge.c1m1"},"tags":{"web":{"test":"tests"}},"registry":{"web":{"username":"bob"}}}`
+	configSetExpected     string = `{"values":[{"group":"global","name":"NEW_URL2","value":"http://localhost:8080/"},{"ptype":"web","name":"NEW_URL","value":"http://localhost:8080"}],"limits":{"web":"std1.xlarge.c1m1"},"lifecycle":{"web":{"postStart":{"httpGet":{"path":"/","port":5001}}}},"tags":{"web":{"test":"tests"}},"registry":{"web":{"username":"bob"}}}`
 	configUnsetExpected   string = `{"values":[{"group":"global","name":"TEST","value":""}],"limits":{"web":null},"tags":{"web":{"test":null}},"registry":{"web":{"username":null}}}`
 	configSetRefsExpected string = `{"values_refs":{"web":["myconfig1"]}}`
 )
@@ -238,6 +258,19 @@ func TestConfigSet(t *testing.T) {
 				"username": "bob",
 			},
 		},
+		Lifecycle: map[string]*api.Lifecycle{
+			"web": {
+				PostStart: func() **api.LifecycleHandler {
+					handler := &api.LifecycleHandler{
+						HTTPGet: &api.HTTPGetAction{
+							Path: "/",
+							Port: 5001,
+						},
+					}
+					return &handler
+				}(),
+			},
+		},
 		Created: "2014-01-01T00:00:00UTC",
 		Updated: "2014-01-01T00:00:00UTC",
 		UUID:    "de1bf5b5-4a72-4f94-a10c-d2a3741cdf75",
@@ -271,6 +304,19 @@ func TestConfigSet(t *testing.T) {
 		Registry: map[string]map[string]any{
 			"web": {
 				"username": "bob",
+			},
+		},
+		Lifecycle: map[string]*api.Lifecycle{
+			"web": {
+				PostStart: func() **api.LifecycleHandler {
+					handler := &api.LifecycleHandler{
+						HTTPGet: &api.HTTPGetAction{
+							Path: "/",
+							Port: 5001,
+						},
+					}
+					return &handler
+				}(),
 			},
 		},
 	}
@@ -382,6 +428,19 @@ func TestConfigList(t *testing.T) {
 		Registry: map[string]map[string]any{
 			"web": {
 				"username": "bob",
+			},
+		},
+		Lifecycle: map[string]*api.Lifecycle{
+			"web": {
+				PostStart: func() **api.LifecycleHandler {
+					handler := &api.LifecycleHandler{
+						HTTPGet: &api.HTTPGetAction{
+							Path: "/",
+							Port: 5001,
+						},
+					}
+					return &handler
+				}(),
 			},
 		},
 		Created: "2014-01-01T00:00:00UTC",
