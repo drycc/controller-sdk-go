@@ -1,5 +1,8 @@
 package api
 
+// PtypeWeb is the process type for web processes.
+const PtypeWeb = "web"
+
 // ProcessType represents the key/value mappings of a process type to a process inside
 // a Heroku Procfile.
 //

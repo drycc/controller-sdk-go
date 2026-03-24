@@ -16,7 +16,7 @@ const appFixture string = `
 {
     "created": "2014-01-01T00:00:00UTC",
     "id": "example-go",
-    "owner": "test",
+	"workspace": "test",
     "structure": {},
     "updated": "2014-01-01T00:00:00UTC",
     "uuid": "de1bf5b5-4a72-4f94-a10c-d2a3741cdf75"
@@ -31,7 +31,7 @@ const appsFixture string = `
         {
             "created": "2014-01-01T00:00:00UTC",
             "id": "example-go",
-            "owner": "test",
+			"workspace": "test",
             "structure": {},
             "updated": "2014-01-01T00:00:00UTC",
             "uuid": "de1bf5b5-4a72-4f94-a10c-d2a3741cdf75"
@@ -40,9 +40,10 @@ const appsFixture string = `
 }`
 
 const (
-	appCreateExpected   string = `{"id":"example-go"}`
-	appRunExpected      string = `{"command":"echo hi","timeout":3600,"expires":3600}`
-	appTransferExpected string = `{"owner":"test"}`
+	appCreateExpected      string = `{"id":"example-go","workspace":"test"}`
+	appCreateEmptyExpected string = `{"workspace":"test"}`
+	appRunExpected         string = `{"command":"echo hi","timeout":3600,"expires":3600}`
+	appTransferExpected    string = `{"workspace":"test"}`
 )
 
 type fakeHTTPServer struct {
@@ -66,7 +67,7 @@ func (f *fakeHTTPServer) ServeHTTP(res http.ResponseWriter, req *http.Request) {
 			res.WriteHeader(http.StatusCreated)
 			res.Write([]byte(appFixture))
 			return
-		} else if string(body) == "" && !f.createWithoutID {
+		} else if string(body) == appCreateEmptyExpected && !f.createWithoutID {
 			f.createWithoutID = true
 			res.WriteHeader(http.StatusCreated)
 			res.Write([]byte(appFixture))
@@ -80,6 +81,13 @@ func (f *fakeHTTPServer) ServeHTTP(res http.ResponseWriter, req *http.Request) {
 	}
 
 	if req.URL.Path == "/v2/apps/" && req.Method == "GET" {
+		workspace := req.URL.Query().Get("workspace")
+		if workspace != "test" {
+			fmt.Printf("Expected workspace 'test', Got '%s'\n", workspace)
+			res.WriteHeader(http.StatusBadRequest)
+			res.Write(nil)
+			return
+		}
 		res.Write([]byte(appsFixture))
 		return
 	}
@@ -114,7 +122,7 @@ func (f *fakeHTTPServer) ServeHTTP(res http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	if req.URL.Path == "/v2/apps/example-go/" && req.Method == "POST" {
+	if req.URL.Path == "/v2/apps/example-go/" && req.Method == "PATCH" {
 		body, err := io.ReadAll(req.Body)
 		if err != nil {
 			fmt.Println(err)
@@ -147,11 +155,11 @@ func TestAppsCreate(t *testing.T) {
 	defer server.Close()
 
 	expected := api.App{
-		ID:      "example-go",
-		Created: "2014-01-01T00:00:00UTC",
-		Owner:   "test",
-		Updated: "2014-01-01T00:00:00UTC",
-		UUID:    "de1bf5b5-4a72-4f94-a10c-d2a3741cdf75",
+		ID:        "example-go",
+		Created:   "2014-01-01T00:00:00UTC",
+		Workspace: "test",
+		Updated:   "2014-01-01T00:00:00UTC",
+		UUID:      "de1bf5b5-4a72-4f94-a10c-d2a3741cdf75",
 	}
 
 	drycc, err := drycc.New(false, server.URL, "abc")
@@ -160,7 +168,7 @@ func TestAppsCreate(t *testing.T) {
 	}
 
 	for _, id := range []string{"example-go", ""} {
-		actual, err := New(drycc, id)
+		actual, err := New(drycc, id, "test")
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -179,11 +187,11 @@ func TestAppsGet(t *testing.T) {
 	defer server.Close()
 
 	expected := api.App{
-		ID:      "example-go",
-		Created: "2014-01-01T00:00:00UTC",
-		Owner:   "test",
-		Updated: "2014-01-01T00:00:00UTC",
-		UUID:    "de1bf5b5-4a72-4f94-a10c-d2a3741cdf75",
+		ID:        "example-go",
+		Created:   "2014-01-01T00:00:00UTC",
+		Workspace: "test",
+		Updated:   "2014-01-01T00:00:00UTC",
+		UUID:      "de1bf5b5-4a72-4f94-a10c-d2a3741cdf75",
 	}
 
 	drycc, err := drycc.New(false, server.URL, "abc")
@@ -244,11 +252,11 @@ func TestAppsList(t *testing.T) {
 
 	expected := api.Apps{
 		{
-			ID:      "example-go",
-			Created: "2014-01-01T00:00:00UTC",
-			Owner:   "test",
-			Updated: "2014-01-01T00:00:00UTC",
-			UUID:    "de1bf5b5-4a72-4f94-a10c-d2a3741cdf75",
+			ID:        "example-go",
+			Created:   "2014-01-01T00:00:00UTC",
+			Workspace: "test",
+			Updated:   "2014-01-01T00:00:00UTC",
+			UUID:      "de1bf5b5-4a72-4f94-a10c-d2a3741cdf75",
 		},
 	}
 
@@ -257,7 +265,7 @@ func TestAppsList(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	actual, _, err := List(drycc, 100)
+	actual, _, err := List(drycc, "test", 100)
 	if err != nil {
 		t.Fatal(err)
 	}

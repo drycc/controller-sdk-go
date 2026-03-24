@@ -15,23 +15,22 @@ const (
 	jsonParsingError = "error decoding json response (%s): %s"
 
 	// fieldReqMsg is API error stating a field is required.
-	fieldReqMsg           = "This field may not be blank."
-	invalidUserMsg        = "Enter a valid username. This value may contain only letters, numbers and @/./+/-/_ characters."
-	failedLoginMsg        = "Unable to log in with provided credentials."
-	invalidAppNameMsg     = "App name can only contain a-z (lowercase), 0-9 and hyphens"
-	invalidNameMsg        = "Can only contain a-z (lowercase), 0-9 and hyphens"
-	invalidCertMsg        = "Could not load certificate"
-	invalidPodMsg         = "does not exist in application"
-	invalidDomainMsg      = "Hostname does not look valid."
-	invalidVersionMsg     = "version cannot be below 0"
-	invalidKeyMsg         = "Key contains invalid base64 chars"
-	duplicateUserMsg      = "A user with that username already exists."
-	invalidEmailMsg       = "Enter a valid email address."
-	invalidTagMsg         = "No nodes matched the provided labels"
-	duplicateIDMsg        = "Application with this id already exists."
-	cancellationFailedMsg = "still has applications assigned. Delete or transfer ownership"
-	duplicateDomainMsg    = "Domain is already in use by another application"
-	duplicateKeyMsg       = "Public Key is already in use"
+	fieldReqMsg        = "This field may not be blank."
+	invalidUserMsg     = "Enter a valid username. This value may contain only letters, numbers and @/./+/-/_ characters."
+	failedLoginMsg     = "Unable to log in with provided credentials."
+	invalidAppNameMsg  = "App name can only contain a-z (lowercase), 0-9 and hyphens"
+	invalidNameMsg     = "Can only contain a-z (lowercase), 0-9 and hyphens"
+	invalidCertMsg     = "Could not load certificate"
+	invalidPodMsg      = "does not exist in application"
+	invalidDomainMsg   = "Hostname does not look valid."
+	invalidVersionMsg  = "version cannot be below 0"
+	invalidKeyMsg      = "Key contains invalid base64 chars"
+	duplicateUserMsg   = "A user with that username already exists."
+	invalidEmailMsg    = "Enter a valid email address."
+	invalidTagMsg      = "No nodes matched the provided labels"
+	duplicateIDMsg     = "Application with this id already exists."
+	duplicateDomainMsg = "Domain is already in use by another application"
+	duplicateKeyMsg    = "Public Key is already in use"
 )
 
 var (
@@ -82,8 +81,6 @@ var (
 	ErrTagNotFound = errors.New("no nodes matched the provided labels")
 	// ErrDuplicateApp is returned when create an app with an ID that already exists
 	ErrDuplicateApp = errors.New("application with this id already exists")
-	// ErrCancellationFailed is returned when cancelling a user fails.
-	ErrCancellationFailed = errors.New("failed to delete user because the user still has applications assigned. Delete or transfer ownership")
 )
 
 // ErrUnprocessable is returned when the controller throws a 422.
@@ -110,6 +107,26 @@ func checkForErrors(res *http.Response) error {
 		return nil
 	}
 	defer res.Body.Close()
+
+	// If the response is HTML (e.g. from a reverse proxy error page), avoid exposing raw HTML.
+	if ct := res.Header.Get("Content-Type"); strings.Contains(ct, "text/html") {
+		switch res.StatusCode {
+		case 401:
+			return ErrUnauthorized
+		case 403:
+			return ErrForbidden
+		case 404:
+			return ErrNotFound{"Not Found"}
+		case 405:
+			return ErrMethodNotAllowed
+		case 409:
+			return ErrConflict
+		case 500:
+			return ErrServerError
+		default:
+			return fmt.Errorf(formatErrUnknown, res.StatusCode, http.StatusText(res.StatusCode))
+		}
+	}
 
 	out, err := io.ReadAll(res.Body)
 	if err != nil {
@@ -211,16 +228,7 @@ func checkForErrors(res *http.Response) error {
 	case 405:
 		return ErrMethodNotAllowed
 	case 409:
-		bodyMap := make(map[string]any)
-		if err := json.Unmarshal(out, &bodyMap); err != nil {
-			return unknownServerError(res.StatusCode, fmt.Sprintf(jsonParsingError, err, string(out)))
-		}
-		if v, ok := bodyMap["detail"].(string); ok {
-			if strings.Contains(v, cancellationFailedMsg) {
-				return ErrCancellationFailed
-			}
-		}
-		return unknownServerError(res.StatusCode, string(out))
+		return ErrConflict
 	case 422:
 		bodyMap := make(map[string]any)
 		if err := json.Unmarshal(out, &bodyMap); err != nil {

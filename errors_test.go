@@ -262,7 +262,7 @@ func TestErrors(t *testing.T) {
 				StatusCode: 409,
 				Body:       readCloser(`{"detail":"foo still has applications assigned. Delete or transfer ownership"}`),
 			},
-			expected: ErrCancellationFailed,
+			expected: ErrConflict,
 		},
 		{
 			res: &http.Response{
@@ -286,6 +286,23 @@ func TestErrors(t *testing.T) {
 			},
 			expected: errors.New(`unknown error (400): {"detail":"unknown error
 newline"}`),
+		},
+		// ensure HTML error pages are handled gracefully
+		{
+			res: &http.Response{
+				StatusCode: 404,
+				Header:     http.Header{"Content-Type": []string{"text/html"}},
+				Body:       readCloser(`<!doctype html><html><body><h1>Not Found</h1></body></html>`),
+			},
+			expected: ErrNotFound{"Not Found"},
+		},
+		{
+			res: &http.Response{
+				StatusCode: 502,
+				Header:     http.Header{"Content-Type": []string{"text/html; charset=utf-8"}},
+				Body:       readCloser(`<!doctype html><html><body><h1>Bad Gateway</h1></body></html>`),
+			},
+			expected: errors.New("unknown error (502): Bad Gateway"),
 		},
 	}
 
