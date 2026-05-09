@@ -1,10 +1,10 @@
 module github.com/drycc/controller-sdk-go
 
-go 1.25
+go 1.26
 
 require (
-	github.com/stretchr/testify v1.10.0
-	golang.org/x/net v0.38.0
+	github.com/stretchr/testify v1.11.1
+	golang.org/x/net v0.54.0
 	gopkg.in/yaml.v3 v3.0.1
 )
 
