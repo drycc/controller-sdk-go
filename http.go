@@ -26,12 +26,13 @@ func createHTTPClient(sslVerify bool) *http.Client {
 // following policy (such as redirects, cookies, auth) as configured on the client.
 func (c *Client) Do(req *http.Request) (*http.Response, error) {
 	if c.Token != "" {
-		req.Header.Add("Authorization", "token "+c.Token)
+		if strings.HasPrefix(strings.ToLower(c.Token), "bearer ") || strings.HasPrefix(strings.ToLower(c.Token), "token ") {
+			req.Header.Add("Authorization", c.Token)
+		} else {
+			req.Header.Add("Authorization", "token "+c.Token)
+		}
 	}
 
-	if c.ServiceKey != "" {
-		req.Header.Add("X-Drycc-Service-Key", c.ServiceKey)
-	}
 	if req.Header.Get("Content-Type") == "" {
 		req.Header.Add("Content-Type", "application/json")
 	}

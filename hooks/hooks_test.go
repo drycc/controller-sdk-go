@@ -161,7 +161,7 @@ func TestConfigHook(t *testing.T) {
 	}
 
 	expected := api.Config{
-		App:   "example-go",
+		App: "example-go",
 		Values: []api.ConfigValue{
 			{
 				Group: "global",

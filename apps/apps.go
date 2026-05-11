@@ -30,14 +30,11 @@ func List(c *drycc.Client, workspace string, results int) (api.Apps, int, error)
 //
 // If the app name already exists, the error drycc.ErrDuplicateApp will be returned.
 func New(c *drycc.Client, appID string, workspace string) (api.App, error) {
-	body := []byte{}
-
 	req := api.AppCreateRequest{ID: appID, Workspace: workspace}
-	b, err := json.Marshal(req)
+	body, err := json.Marshal(req)
 	if err != nil {
 		return api.App{}, err
 	}
-	body = b
 
 	res, reqErr := c.Request("POST", "/v2/apps/", body)
 	if reqErr != nil && !drycc.IsErrAPIMismatch(reqErr) {

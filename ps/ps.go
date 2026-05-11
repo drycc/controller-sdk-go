@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"net/url"
 	"sort"
+	"strings"
 
 	drycc "github.com/drycc/controller-sdk-go"
 	"github.com/drycc/controller-sdk-go/api"
@@ -41,10 +42,13 @@ func Exec(c *drycc.Client, appID, podID string, command api.Command) (*websocket
 	if err != nil {
 		return nil, err
 	}
+	authHeader := c.Token
+	if !strings.HasPrefix(strings.ToLower(authHeader), "bearer ") && !strings.HasPrefix(strings.ToLower(authHeader), "token ") {
+		authHeader = "token " + authHeader
+	}
 	config.Header = http.Header{
-		"User-Agent":          {c.UserAgent},
-		"Authorization":       {"token " + c.Token},
-		"X-Drycc-Service-Key": {c.ServiceKey},
+		"User-Agent":    {c.UserAgent},
+		"Authorization": {authHeader},
 	}
 	conn, err := websocket.DialConfig(config)
 	if err != nil {
@@ -67,10 +71,13 @@ func Logs(c *drycc.Client, appID, podID string, request api.PodLogsRequest) (*we
 	if err != nil {
 		return nil, err
 	}
+	authHeader := c.Token
+	if !strings.HasPrefix(strings.ToLower(authHeader), "bearer ") && !strings.HasPrefix(strings.ToLower(authHeader), "token ") {
+		authHeader = "token " + authHeader
+	}
 	config.Header = http.Header{
-		"User-Agent":          {c.UserAgent},
-		"Authorization":       {"token " + c.Token},
-		"X-Drycc-Service-Key": {c.ServiceKey},
+		"User-Agent":    {c.UserAgent},
+		"Authorization": {authHeader},
 	}
 	conn, err := websocket.DialConfig(config)
 	if err != nil {

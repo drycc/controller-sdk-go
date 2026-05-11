@@ -409,8 +409,8 @@ func TestVolumeMount(t *testing.T) {
 	}
 
 	expected := api.Volume{
-		Name:  "myvolume",
-		App:   "example-go",
+		Name: "myvolume",
+		App:  "example-go",
 		Path: map[string]any{
 			"cmd": "/data/cmd1",
 			"web": "/data/web1",

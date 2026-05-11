@@ -169,7 +169,7 @@ func (k KVPair) String() string {
 	return k.Name + "=" + k.Value
 }
 
-// ExecProbe executes a command within a Pod.
+// ExecAction describes a command to execute within a Pod for probing.
 type ExecAction struct {
 	Command []string `json:"command"`
 }
