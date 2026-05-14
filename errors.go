@@ -140,6 +140,15 @@ func checkForErrors(res *http.Response) error {
 			return unknownServerError(res.StatusCode, string(out))
 		}
 
+		if oauthErr, ok := bodyMap["error"].(string); ok {
+			if oauthErr == "invalid_grant" {
+				return ErrLogin
+			}
+			if desc, ok := bodyMap["error_description"].(string); ok && desc != "" {
+				return unknownServerError(res.StatusCode, desc)
+			}
+		}
+
 		if scanResponse(bodyMap, "username", []string{fieldReqMsg, invalidUserMsg}, true) {
 			return ErrInvalidUsername
 		}
