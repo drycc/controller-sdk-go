@@ -27,7 +27,7 @@ func List(c *drycc.Client, results int) (api.Workspaces, int, error) {
 
 // Create creates a workspace.
 func Create(c *drycc.Client, name, email string) (api.Workspace, error) {
-	req := api.WorkspaceCreateRequest{Name: name, Email: email}
+	req := api.WorkspaceCreateRequest{ID: name, Email: email}
 	body, err := json.Marshal(req)
 	if err != nil {
 		return api.Workspace{}, err

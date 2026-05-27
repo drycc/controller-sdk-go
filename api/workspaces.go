@@ -2,8 +2,9 @@ package api
 
 // Workspace is the definition of the workspace object.
 type Workspace struct {
-	ID      int    `json:"id"`
-	Name    string `json:"name"`
+	UUID    string `json:"uuid"`
+	ID      string `json:"id"`
+	UID     int    `json:"uid"`
 	Email   string `json:"email"`
 	Created string `json:"created"`
 	Updated string `json:"updated"`
@@ -14,11 +15,11 @@ type Workspaces []Workspace
 
 func (w Workspaces) Len() int           { return len(w) }
 func (w Workspaces) Swap(i, j int)      { w[i], w[j] = w[j], w[i] }
-func (w Workspaces) Less(i, j int) bool { return w[i].Name < w[j].Name }
+func (w Workspaces) Less(i, j int) bool { return w[i].ID < w[j].ID }
 
 // WorkspaceCreateRequest is the definition of POST /v2/workspaces.
 type WorkspaceCreateRequest struct {
-	Name  string `json:"name"`
+	ID    string `json:"id"`
 	Email string `json:"email"`
 }
 

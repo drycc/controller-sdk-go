@@ -56,12 +56,12 @@ if err != nil {
     log.Fatal(err)
 }
 
-_, _, err = members.List(client, ws.Name, 100)
+_, _, err = members.List(client, ws.ID, 100)
 if err != nil {
     log.Fatal(err)
 }
 
-_, err = invitations.Create(client, ws.Name, "new-user@example.com")
+_, err = invitations.Create(client, ws.ID, "new-user@example.com")
 if err != nil {
     log.Fatal(err)
 }

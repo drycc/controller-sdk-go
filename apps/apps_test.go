@@ -16,6 +16,7 @@ const appFixture string = `
 {
     "created": "2014-01-01T00:00:00UTC",
     "id": "example-go",
+	"uid": 1001,
 	"workspace": "test",
     "structure": {},
     "updated": "2014-01-01T00:00:00UTC",
@@ -31,6 +32,7 @@ const appsFixture string = `
         {
             "created": "2014-01-01T00:00:00UTC",
             "id": "example-go",
+			"uid": 1001,
 			"workspace": "test",
             "structure": {},
             "updated": "2014-01-01T00:00:00UTC",
@@ -156,6 +158,7 @@ func TestAppsCreate(t *testing.T) {
 
 	expected := api.App{
 		ID:        "example-go",
+		UID:       1001,
 		Created:   "2014-01-01T00:00:00UTC",
 		Workspace: "test",
 		Updated:   "2014-01-01T00:00:00UTC",
@@ -188,6 +191,7 @@ func TestAppsGet(t *testing.T) {
 
 	expected := api.App{
 		ID:        "example-go",
+		UID:       1001,
 		Created:   "2014-01-01T00:00:00UTC",
 		Workspace: "test",
 		Updated:   "2014-01-01T00:00:00UTC",
@@ -253,6 +257,7 @@ func TestAppsList(t *testing.T) {
 	expected := api.Apps{
 		{
 			ID:        "example-go",
+			UID:       1001,
 			Created:   "2014-01-01T00:00:00UTC",
 			Workspace: "test",
 			Updated:   "2014-01-01T00:00:00UTC",

@@ -14,8 +14,9 @@ import (
 
 const workspaceFixture = `
 {
-  "id": 1,
-  "name": "wsalpha",
+	"uuid": "9e5e56f2-4dc5-45ba-87f8-5fd2cd49c5a0",
+	"id": "wsalpha",
+	"uid": 1001,
   "email": "ws@example.com",
   "created": "2026-03-24T00:00:00Z",
   "updated": "2026-03-24T00:00:00Z"
@@ -28,8 +29,9 @@ const workspacesFixture = `
   "previous": null,
   "results": [
     {
-      "id": 1,
-      "name": "wsalpha",
+			"uuid": "9e5e56f2-4dc5-45ba-87f8-5fd2cd49c5a0",
+			"id": "wsalpha",
+			"uid": 1001,
       "email": "ws@example.com",
       "created": "2026-03-24T00:00:00Z",
       "updated": "2026-03-24T00:00:00Z"
@@ -38,7 +40,7 @@ const workspacesFixture = `
 }`
 
 const (
-	workspaceCreateExpected = `{"name":"wsalpha","email":"ws@example.com"}`
+	workspaceCreateExpected = `{"id":"wsalpha","email":"ws@example.com"}`
 	workspaceUpdateExpected = `{"email":"ws-new@example.com"}`
 )
 
@@ -71,7 +73,7 @@ func (f *fakeWorkspaceServer) ServeHTTP(res http.ResponseWriter, req *http.Reque
 			res.WriteHeader(http.StatusInternalServerError)
 			return
 		}
-		res.Write([]byte(`{"id":1,"name":"wsalpha","email":"ws-new@example.com","created":"2026-03-24T00:00:00Z","updated":"2026-03-24T00:00:00Z"}`))
+		res.Write([]byte(`{"uuid":"9e5e56f2-4dc5-45ba-87f8-5fd2cd49c5a0","id":"wsalpha","uid":1001,"email":"ws-new@example.com","created":"2026-03-24T00:00:00Z","updated":"2026-03-24T00:00:00Z"}`))
 		return
 	}
 	if req.URL.Path == "/v2/workspaces/wsalpha" && req.Method == "DELETE" {
@@ -94,7 +96,7 @@ func TestWorkspaces(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	expected := api.Workspace{ID: 1, Name: "wsalpha", Email: "ws@example.com", Created: "2026-03-24T00:00:00Z", Updated: "2026-03-24T00:00:00Z"}
+	expected := api.Workspace{UUID: "9e5e56f2-4dc5-45ba-87f8-5fd2cd49c5a0", ID: "wsalpha", UID: 1001, Email: "ws@example.com", Created: "2026-03-24T00:00:00Z", Updated: "2026-03-24T00:00:00Z"}
 
 	list, _, err := List(c, 100)
 	if err != nil {

@@ -5,6 +5,7 @@ package api
 type App struct {
 	Created   string `json:"created"`
 	ID        string `json:"id"`
+	UID       int    `json:"uid"`
 	Workspace string `json:"workspace"`
 	Updated   string `json:"updated"`
 	UUID      string `json:"uuid"`
