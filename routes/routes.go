@@ -4,7 +4,6 @@ package routes
 import (
 	"encoding/json"
 	"fmt"
-	"io"
 
 	drycc "github.com/drycc/controller-sdk-go"
 	"github.com/drycc/controller-sdk-go/api"
@@ -27,96 +26,50 @@ func List(c *drycc.Client, appID string, results int) (api.Routes, int, error) {
 	return routes, count, reqErr
 }
 
-// New adds a route to an app.
-func New(c *drycc.Client, appID, name, kind string, backendRefs ...api.BackendRefRequest) error {
-	u := fmt.Sprintf("/v2/apps/%s/routes/", appID)
-
-	req := api.RouteCreateRequest{
-		Name:  name,
-		Kind:  kind,
-		Rules: []api.RequestRouteRule{{BackendRefs: backendRefs}},
-	}
+// Apply creates or updates a route for an app.
+func Apply(c *drycc.Client, appID string, req api.RouteUpdateRequest) (api.RouteInfo, error) {
+	name := req.Name
+	req.App = appID
+	u := fmt.Sprintf("/v2/apps/%s/routes/%s/", appID, name)
 
 	body, err := json.Marshal(req)
 	if err != nil {
-		return err
+		return api.RouteInfo{}, err
 	}
 
-	res, reqErr := c.Request("POST", u, body)
+	res, reqErr := c.Request("PUT", u, body)
 	if reqErr != nil && !drycc.IsErrAPIMismatch(reqErr) {
-		return reqErr
-	}
-	defer res.Body.Close()
-	return reqErr
-}
-
-// AttachGateway route attach a gateway.
-func AttachGateway(c *drycc.Client, appID string, name string, port int, gateway string) error {
-	u := fmt.Sprintf("/v2/apps/%s/routes/%s/attach/", appID, name)
-
-	req := api.RouteAttachRequest{Port: port, Gateway: gateway}
-
-	body, err := json.Marshal(req)
-	if err != nil {
-		return err
-	}
-
-	res, reqErr := c.Request("PATCH", u, body)
-	if reqErr != nil && !drycc.IsErrAPIMismatch(reqErr) {
-		return reqErr
+		return api.RouteInfo{}, reqErr
 	}
 	defer res.Body.Close()
 
-	return reqErr
-}
-
-// DetachGateway route attach a gateway.
-func DetachGateway(c *drycc.Client, appID string, name string, port int, gateway string) error {
-	u := fmt.Sprintf("/v2/apps/%s/routes/%s/detach/", appID, name)
-
-	req := api.RouteDetachRequest{Port: port, Gateway: gateway}
-
-	body, err := json.Marshal(req)
-	if err != nil {
-		return err
+	var info api.RouteInfo
+	if err := json.NewDecoder(res.Body).Decode(&info); err != nil {
+		return api.RouteInfo{}, err
 	}
 
-	res, reqErr := c.Request("PATCH", u, body)
-	if reqErr != nil && !drycc.IsErrAPIMismatch(reqErr) {
-		return reqErr
-	}
-	defer res.Body.Close()
-
-	return reqErr
+	return info, reqErr
 }
 
-// GetRule gets info rule of a route from an app.
-func GetRule(c *drycc.Client, appID string, name string) (string, error) {
-	u := fmt.Sprintf("/v2/apps/%s/routes/%s/rules/", appID, name)
+// Info retrieves information about a route.
+func Info(c *drycc.Client, appID string, name string) (api.RouteInfo, error) {
+	u := fmt.Sprintf("/v2/apps/%s/routes/%s/", appID, name)
+
 	res, err := c.Request("GET", u, nil)
 	if err != nil {
-		return "", err
+		return api.RouteInfo{}, err
 	}
 	defer res.Body.Close()
-	respBytes, err := io.ReadAll(res.Body)
-	return string(respBytes), err
+
+	var info api.RouteInfo
+	if err := json.NewDecoder(res.Body).Decode(&info); err != nil {
+		return api.RouteInfo{}, err
+	}
+
+	return info, nil
 }
 
-// SetRule set rule of a route.
-func SetRule(c *drycc.Client, appID string, name string, rules string) error {
-	u := fmt.Sprintf("/v2/apps/%s/routes/%s/rules/", appID, name)
-	body, err := json.Marshal(rules)
-	if err != nil {
-		return err
-	}
-	res, err := c.Request("PUT", u, body)
-	if err == nil {
-		res.Body.Close()
-	}
-	return err
-}
-
-// Delete Delete a route from an app.
+// Delete removes a route from an app.
 func Delete(c *drycc.Client, appID string, name string) error {
 	u := fmt.Sprintf("/v2/apps/%s/routes/%s/", appID, name)
 	res, err := c.Request("DELETE", u, nil)

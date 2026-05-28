@@ -23,18 +23,14 @@ const gatewaysFixture string = `
             "name": "example-go",
             "created": "2023-04-19T00:00:00UTC",
             "updated": "2023-04-19T00:00:00UTC",
-            "listeners": [
+			"ports": [
                 {
-                    "name": "example-go-80-http",
                     "port": 80,
-                    "protocol": "HTTP",
-                    "allowedRoutes": {"namespaces": {"from": "All"}}
+					"protocol": "HTTP"
                 },
                 {
-                    "name": "example-go-443-https",
                     "port": 443,
-                    "protocol": "HTTPS",
-                    "allowedRoutes": {"namespaces": {"from": "All"}}
+					"protocol": "HTTPS"
                 }
             ],
             "addresses": [
@@ -48,8 +44,8 @@ const gatewaysFixture string = `
 }`
 
 const (
-	gatewayCreateExpected string = `{"name":"example-go","port":443,"protocol":"HTTPS"}`
-	gatewayRemoveExpected string = `{"name":"example-go","port":443,"protocol":"HTTPS"}`
+	gatewayApplyExpected string = `{"app":"example-go","name":"example-go","ports":[{"port":80,"protocol":"HTTP"},{"port":443,"protocol":"HTTPS"}]}`
+	gatewayInfoResponse  string = `{"name":"example-go","ports":[{"port":80,"protocol":"HTTP"},{"port":443,"protocol":"HTTPS"}]}`
 )
 
 type fakeHTTPServer struct{}
@@ -62,37 +58,31 @@ func (fakeHTTPServer) ServeHTTP(res http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	if req.URL.Path == "/v2/apps/example-go/gateways/" && req.Method == "POST" {
+	if req.URL.Path == "/v2/apps/example-go/gateways/example-go/" && req.Method == "PUT" {
 		body, err := io.ReadAll(req.Body)
 		if err != nil {
 			fmt.Println(err)
 			res.WriteHeader(http.StatusInternalServerError)
 			res.Write(nil)
 		}
-		if string(body) != gatewayCreateExpected {
-			fmt.Printf("Expected '%s', Got '%s'\n", gatewayCreateExpected, body)
+		if string(body) != gatewayApplyExpected {
+			fmt.Printf("Expected '%s', Got '%s'\n", gatewayApplyExpected, body)
 			res.WriteHeader(http.StatusInternalServerError)
 			res.Write(nil)
 			return
 		}
 
-		res.WriteHeader(http.StatusCreated)
+		res.WriteHeader(http.StatusOK)
+		res.Write([]byte(gatewayInfoResponse))
 		return
 	}
 
-	if req.URL.Path == "/v2/apps/example-go/gateways/" && req.Method == "DELETE" {
-		body, err := io.ReadAll(req.Body)
-		if err != nil {
-			fmt.Println(err)
-			res.WriteHeader(http.StatusInternalServerError)
-			res.Write(nil)
-		}
-		if string(body) != gatewayRemoveExpected {
-			fmt.Printf("Expected '%s', Got '%s'\n", gatewayRemoveExpected, body)
-			res.WriteHeader(http.StatusInternalServerError)
-			res.Write(nil)
-			return
-		}
+	if req.URL.Path == "/v2/apps/example-go/gateways/example-go/" && req.Method == "GET" {
+		res.Write([]byte(gatewayInfoResponse))
+		return
+	}
+
+	if req.URL.Path == "/v2/apps/example-go/gateways/example-go/" && req.Method == "DELETE" {
 		res.WriteHeader(http.StatusNoContent)
 		return
 	}
@@ -111,18 +101,14 @@ func TestGatewaysList(t *testing.T) {
 			Created: "2023-04-19T00:00:00UTC",
 			Name:    "example-go",
 			Updated: "2023-04-19T00:00:00UTC",
-			Listeners: []api.Listener{
+			Ports: []api.GatewayPort{
 				{
-					Name:          "example-go-80-http",
-					Port:          80,
-					Protocol:      "HTTP",
-					AllowedRoutes: map[string]any{"namespaces": map[string]any{"from": "All"}},
+					Port:     80,
+					Protocol: "HTTP",
 				},
 				{
-					Name:          "example-go-443-https",
-					Port:          443,
-					Protocol:      "HTTPS",
-					AllowedRoutes: map[string]any{"namespaces": map[string]any{"from": "All"}},
+					Port:     443,
+					Protocol: "HTTPS",
 				},
 			},
 			Addresses: []api.Address{
@@ -152,7 +138,7 @@ func TestGatewaysList(t *testing.T) {
 	}
 }
 
-func TestGatewaysAdd(t *testing.T) {
+func TestGatewaysApply(t *testing.T) {
 	t.Parallel()
 
 	handler := fakeHTTPServer{}
@@ -164,9 +150,43 @@ func TestGatewaysAdd(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	err = New(drycc, "example-go", "example-go", 443, "HTTPS")
+	req := api.GatewayUpdateRequest{
+		Name: "example-go",
+		Ports: []api.GatewayPort{
+			{Port: 80, Protocol: "HTTP"},
+			{Port: 443, Protocol: "HTTPS"},
+		},
+	}
+
+	info, err := Apply(drycc, "example-go", req)
 	if err != nil {
 		t.Fatal(err)
+	}
+
+	if len(info.Ports) != 2 {
+		t.Fatalf("Expected 2 ports, got %d", len(info.Ports))
+	}
+}
+
+func TestGatewaysInfo(t *testing.T) {
+	t.Parallel()
+
+	handler := fakeHTTPServer{}
+	server := httptest.NewServer(handler)
+	defer server.Close()
+
+	drycc, err := drycc.New(false, server.URL, "abc")
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	info, err := Info(drycc, "example-go", "example-go")
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if len(info.Ports) != 2 {
+		t.Fatalf("Expected 2 ports, got %d", len(info.Ports))
 	}
 }
 
@@ -182,7 +202,7 @@ func TestGatewaysRemove(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	if err = Delete(drycc, "example-go", "example-go", 443, "HTTPS"); err != nil {
+	if err = Delete(drycc, "example-go", "example-go"); err != nil {
 		t.Fatal(err)
 	}
 }

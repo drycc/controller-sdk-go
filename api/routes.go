@@ -29,36 +29,27 @@ type RouteRule map[string]any
 // Routes defines a collection of Route objects.
 type Routes []Route
 
-// RouteCreateRequest is the structure of POST /v2/app/<app_id>/routes/.
-
-// RouteCreateRequest is the structure of POST /v2/app/<app_id>/routes/.
-type RouteCreateRequest struct {
-	Name  string             `json:"name,omitempty"`
-	Kind  string             `json:"kind,omitempty"`
-	Rules []RequestRouteRule `json:"rules,omitempty"`
+// RouteUpdateRequest is the structure of PUT /v2/apps/<app_id>/routes/<name>/.
+type RouteUpdateRequest struct {
+	App        string           `json:"app"`
+	Name       string           `json:"name"`
+	Kind       string           `json:"kind"`
+	ParentRefs []RouteParentRef `json:"parent_refs"`
+	Rules      []RouteRule      `json:"rules"`
 }
 
-// BackendRefRequest represents a backend reference in a route request.
-type BackendRefRequest struct {
-	Kind   string `json:"kind,omitempty"`
-	Name   string `json:"name,omitempty"`
-	Port   int32  `json:"port,omitempty"`
-	Weight int32  `json:"weight,omitempty"`
+// RouteParentRef represents a reference to a parent gateway in apply request.
+type RouteParentRef struct {
+	Name string `json:"name"`
+	Port int    `json:"port"`
 }
 
-// RequestRouteRule represents a route rule in a request.
-type RequestRouteRule struct {
-	BackendRefs []BackendRefRequest `json:"backendRefs,omitempty"`
-}
-
-// RouteAttachRequest is the structure of PATCH /v2/apps/(?P<id>{})/routes/(?P<name>{})/attach/?$.
-type RouteAttachRequest struct {
-	Port    int    `json:"port,omitempty"`
-	Gateway string `json:"gateway,omitempty"`
-}
-
-// RouteDetachRequest is the structure of PATCH /v2/apps/(?P<id>{})/routes/(?P<name>{})/detach/?$.
-type RouteDetachRequest struct {
-	Port    int    `json:"port,omitempty"`
-	Gateway string `json:"gateway,omitempty"`
+// RouteInfo is the structure returned by GET /v2/apps/<app_id>/routes/<name>/.
+type RouteInfo struct {
+	App        string           `json:"app,omitempty"`
+	Name       string           `json:"name,omitempty"`
+	Kind       string           `json:"kind"`
+	ParentRefs []RouteParentRef `json:"parent_refs"`
+	Rules      []RouteRule      `json:"rules"`
+	Routable   *bool            `json:"routable,omitempty"`
 }

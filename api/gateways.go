@@ -10,18 +10,10 @@ type Gateway struct {
 	Updated string `json:"updated,omitempty"`
 	// UUID is a unique string reflecting the application settings in its current state.
 	// It changes every time the application settings is changed and cannot be updated.
-	UUID      string     `json:"uuid,omitempty"`
-	Name      string     `json:"name,omitempty"`
-	Listeners []Listener `json:"listeners,omitempty"`
-	Addresses []Address  `json:"addresses,omitempty"`
-}
-
-// Listener represents a gateway listener configuration.
-type Listener struct {
-	Name          string `json:"name,omitempty"`
-	Port          int    `json:"port,omitempty"`
-	Protocol      string `json:"protocol,omitempty"`
-	AllowedRoutes any    `json:"allowedRoutes,omitempty"`
+	UUID      string        `json:"uuid,omitempty"`
+	Name      string        `json:"name,omitempty"`
+	Ports     []GatewayPort `json:"ports,omitempty"`
+	Addresses []Address     `json:"addresses,omitempty"`
 }
 
 // Address represents a gateway address configuration.
@@ -33,16 +25,23 @@ type Address struct {
 // Gateways defines a collection of gateway objects.
 type Gateways []Gateway
 
-// GatewayCreateRequest is the structure of POST /v2/app/<app id>/gateways/.
-type GatewayCreateRequest struct {
-	Name     string `json:"name,omitempty"`
-	Port     int    `json:"port,omitempty"`
-	Protocol string `json:"protocol,omitempty"`
+// GatewayUpdateRequest is the structure of PUT /v2/apps/<app id>/gateways/<name>/.
+type GatewayUpdateRequest struct {
+	App   string        `json:"app"`
+	Name  string        `json:"name"`
+	Ports []GatewayPort `json:"ports"`
 }
 
-// GatewayRemoveRequest is the structure of Delete /v2/app/<app id>/gateways/.
-type GatewayRemoveRequest struct {
-	Name     string `json:"name,omitempty"`
-	Port     int    `json:"port,omitempty"`
-	Protocol string `json:"protocol,omitempty"`
+// GatewayPort represents a port in a gateway apply request.
+type GatewayPort struct {
+	Port     int    `json:"port"`
+	Protocol string `json:"protocol"`
+}
+
+// GatewayInfo is the structure returned by GET /v2/apps/<app id>/gateways/<name>/.
+type GatewayInfo struct {
+	App       string        `json:"app,omitempty"`
+	Name      string        `json:"name,omitempty"`
+	Ports     []GatewayPort `json:"ports"`
+	Addresses []Address     `json:"addresses,omitempty"`
 }

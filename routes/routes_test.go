@@ -5,7 +5,6 @@ import (
 	"io"
 	"net/http"
 	"net/http/httptest"
-	"reflect"
 	"testing"
 
 	drycc "github.com/drycc/controller-sdk-go"
@@ -31,7 +30,7 @@ const routesFixture string = `
                 }
             ],
             "rules": [{
-                "backendRefs": [{
+				"backendRefs": [{
                     "kind": "Service",
                     "name": "example-go",
                     "port": 5000,
@@ -42,28 +41,9 @@ const routesFixture string = `
     ]
 }`
 
-const routerulesFixture string = `
-[
-  {
-    "backendRefs": [
-      {
-        "kind": "Service",
-        "name": "py3django3",
-        "port": 80
-      }
-    ]
-  }
-]`
+const routeApplyExpected string = `{"app":"example-go","name":"example-go","kind":"HTTPRoute","parent_refs":[{"name":"example-go","port":80}],"rules":[{"backendRefs":[{"kind":"Service","name":"example-go","port":5000,"weight":100}]}]}`
 
-const routerulesSetFixture string = `"[{\"backendRefs\": [{\"kind\": \"Service\",\"name\": \"py3django3\",\"port\": 80}]}]"`
-
-const routeCreateExpected string = `{"name":"example-go","kind":"HTTPRoute","rules":[{"backendRefs":[{"kind":"Service","name":"example-go","port":80,"weight":100}]}]}`
-
-const routeRulesSetExpected string = `[{"backendRefs": [{"kind": "Service","name": "py3django3","port": 80}]}]`
-
-const routeAttachExpected string = `{"port":80,"gateway":"example-go"}`
-
-const routeDetachExpected string = `{"port":80,"gateway":"example-go"}`
+const routeInfoResponse string = `{"name":"example-go","kind":"HTTPRoute","parent_refs":[{"name":"example-go","port":80}],"rules":[{"backendRefs":[{"kind":"Service","name":"example-go","port":5000,"weight":100}]}]}`
 
 type fakeHTTPServer struct{}
 
@@ -75,80 +55,27 @@ func (fakeHTTPServer) ServeHTTP(res http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	if req.URL.Path == "/v2/apps/example-go/routes/example-go/rules/" && req.Method == "GET" {
-		res.Write([]byte(routerulesFixture))
-		return
-	}
-
-	if req.URL.Path == "/v2/apps/example-go/routes/example-go/rules/" && req.Method == "PUT" {
+	if req.URL.Path == "/v2/apps/example-go/routes/example-go/" && req.Method == "PUT" {
 		body, err := io.ReadAll(req.Body)
 		if err != nil {
 			fmt.Println(err)
 			res.WriteHeader(http.StatusInternalServerError)
 			res.Write(nil)
 		}
-		if string(body) != routerulesSetFixture {
-			fmt.Printf("Expected '%s', Got '%s'\n", routerulesSetFixture, body)
+		if string(body) != routeApplyExpected {
+			fmt.Printf("Expected '%s', Got '%s'\n", routeApplyExpected, body)
 			res.WriteHeader(http.StatusInternalServerError)
 			res.Write(nil)
 			return
 		}
 
-		res.WriteHeader(http.StatusNoContent)
+		res.WriteHeader(http.StatusOK)
+		res.Write([]byte(routeInfoResponse))
 		return
 	}
 
-	if req.URL.Path == "/v2/apps/example-go/routes/" && req.Method == "POST" {
-		body, err := io.ReadAll(req.Body)
-		if err != nil {
-			fmt.Println(err)
-			res.WriteHeader(http.StatusInternalServerError)
-			res.Write(nil)
-		}
-		if string(body) != routeCreateExpected {
-			fmt.Printf("Expected '%s', Got '%s'\n", routeCreateExpected, body)
-			res.WriteHeader(http.StatusInternalServerError)
-			res.Write(nil)
-			return
-		}
-
-		res.WriteHeader(http.StatusCreated)
-		return
-	}
-
-	if req.URL.Path == "/v2/apps/example-go/routes/example-go/attach/" && req.Method == "PATCH" {
-		body, err := io.ReadAll(req.Body)
-		if err != nil {
-			fmt.Println(err)
-			res.WriteHeader(http.StatusInternalServerError)
-			res.Write(nil)
-		}
-		if string(body) != routeAttachExpected {
-			fmt.Printf("Expected '%s', Got '%s'\n", routeAttachExpected, body)
-			res.WriteHeader(http.StatusInternalServerError)
-			res.Write(nil)
-			return
-		}
-
-		res.WriteHeader(http.StatusNoContent)
-		return
-	}
-
-	if req.URL.Path == "/v2/apps/example-go/routes/example-go/detach/" && req.Method == "PATCH" {
-		body, err := io.ReadAll(req.Body)
-		if err != nil {
-			fmt.Println(err)
-			res.WriteHeader(http.StatusInternalServerError)
-			res.Write(nil)
-		}
-		if string(body) != routeDetachExpected {
-			fmt.Printf("Expected '%s', Got '%s'\n", routeDetachExpected, body)
-			res.WriteHeader(http.StatusInternalServerError)
-			res.Write(nil)
-			return
-		}
-
-		res.WriteHeader(http.StatusNoContent)
+	if req.URL.Path == "/v2/apps/example-go/routes/example-go/" && req.Method == "GET" {
+		res.Write([]byte(routeInfoResponse))
 		return
 	}
 
@@ -213,7 +140,7 @@ func TestRoutesList(t *testing.T) {
 	}
 }
 
-func TestRouteGet(t *testing.T) {
+func TestRoutesApply(t *testing.T) {
 	t.Parallel()
 
 	handler := fakeHTTPServer{}
@@ -225,17 +152,35 @@ func TestRouteGet(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	actual, err := GetRule(drycc, "example-go", "example-go")
+	req := api.RouteUpdateRequest{
+		Name: "example-go",
+		Kind: "HTTPRoute",
+		ParentRefs: []api.RouteParentRef{
+			{Name: "example-go", Port: 80},
+		},
+		Rules: []api.RouteRule{
+			{
+				"backendRefs": []map[string]any{{
+					"kind":   "Service",
+					"name":   "example-go",
+					"port":   5000,
+					"weight": 100,
+				}},
+			},
+		},
+	}
+
+	info, err := Apply(drycc, "example-go", req)
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	if !reflect.DeepEqual(routerulesFixture, actual) {
-		t.Error(fmt.Errorf("Expected %v, Got %v", routerulesFixture, actual))
+	if info.Kind != "HTTPRoute" {
+		t.Fatalf("Expected HTTPRoute, got %s", info.Kind)
 	}
 }
 
-func TestRouteSet(t *testing.T) {
+func TestRoutesInfo(t *testing.T) {
 	t.Parallel()
 
 	handler := fakeHTTPServer{}
@@ -247,65 +192,13 @@ func TestRouteSet(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	err = SetRule(drycc, "example-go", "example-go", routeRulesSetExpected)
-	if err != nil {
-		t.Fatal(err)
-	}
-}
-
-func TestRoutesAdd(t *testing.T) {
-	t.Parallel()
-
-	handler := fakeHTTPServer{}
-	server := httptest.NewServer(handler)
-	defer server.Close()
-
-	drycc, err := drycc.New(false, server.URL, "abc")
+	info, err := Info(drycc, "example-go", "example-go")
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	backendRef := api.BackendRefRequest{Kind: "Service", Name: "example-go", Port: 80, Weight: 100}
-
-	err = New(drycc, "example-go", "example-go", "HTTPRoute", backendRef)
-	if err != nil {
-		t.Fatal(err)
-	}
-}
-
-func TestRoutesAttachGateway(t *testing.T) {
-	t.Parallel()
-
-	handler := fakeHTTPServer{}
-	server := httptest.NewServer(handler)
-	defer server.Close()
-
-	drycc, err := drycc.New(false, server.URL, "abc")
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	err = AttachGateway(drycc, "example-go", "example-go", 80, "example-go")
-	if err != nil {
-		t.Fatal(err)
-	}
-}
-
-func TestRoutesDetachGateway(t *testing.T) {
-	t.Parallel()
-
-	handler := fakeHTTPServer{}
-	server := httptest.NewServer(handler)
-	defer server.Close()
-
-	drycc, err := drycc.New(false, server.URL, "abc")
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	err = DetachGateway(drycc, "example-go", "example-go", 80, "example-go")
-	if err != nil {
-		t.Fatal(err)
+	if info.Kind != "HTTPRoute" {
+		t.Fatalf("Expected HTTPRoute, got %s", info.Kind)
 	}
 }
 
