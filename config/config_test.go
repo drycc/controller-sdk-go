@@ -41,8 +41,8 @@ const configFixtureV1 string = `
     },
 	"lifecycle": {
 	    "web": {
-		    "postStart": {
-			    "httpGet": {
+		    "post_start": {
+			    "http_get": {
 				    "path": "/",
 					"port": 5001
 				}
@@ -83,8 +83,8 @@ const configFixtureV2 string = `
     },
 	"lifecycle": {
 	    "web": {
-		    "postStart": {
-			    "httpGet": {
+		    "post_start": {
+			    "http_get": {
 				    "path": "/",
 					"port": 5001
 				}
@@ -125,7 +125,7 @@ const configSetRefsFixture string = `
 `
 
 const (
-	configSetExpected     string = `{"values":[{"group":"global","name":"NEW_URL2","value":"http://localhost:8080/"},{"ptype":"web","name":"NEW_URL","value":"http://localhost:8080"}],"limits":{"web":"std1.xlarge.c1m1"},"lifecycle":{"web":{"postStart":{"httpGet":{"path":"/","port":5001}}}},"tags":{"web":{"test":"tests"}},"registry":{"web":{"username":"bob"}}}`
+	configSetExpected     string = `{"values":[{"group":"global","name":"NEW_URL2","value":"http://localhost:8080/"},{"ptype":"web","name":"NEW_URL","value":"http://localhost:8080"}],"limits":{"web":"std1.xlarge.c1m1"},"lifecycle":{"web":{"post_start":{"http_get":{"path":"/","port":5001}}}},"tags":{"web":{"test":"tests"}},"registry":{"web":{"username":"bob"}}}`
 	configUnsetExpected   string = `{"values":[{"group":"global","name":"TEST","value":""}],"limits":{"web":null},"tags":{"web":{"test":null}},"registry":{"web":{"username":null}}}`
 	configSetRefsExpected string = `{"values_refs":{"web":["myconfig1"]}}`
 )

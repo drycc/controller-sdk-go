@@ -24,13 +24,13 @@ const servicesFixture string = `
                     "name": "example-go-web-udp-5000",
                     "port": 5000,
                     "protocol": "UDP",
-                    "targetPort": 5000
+                    "target_port": 5000
                 },
                 {
                     "name": "example-go-web-tcp-2379",
                     "port": 2379,
                     "protocol": "TCP",
-                    "targetPort": 2379
+                    "target_port": 2379
                 }
             ]
         },
@@ -43,7 +43,7 @@ const servicesFixture string = `
                     "name": "example-go-worker-tcp-5000",
                     "port": 5000,
                     "protocol": "TCP",
-                    "targetPort": 5000
+                    "target_port": 5000
                 }
             ]
         }

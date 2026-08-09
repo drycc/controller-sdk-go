@@ -27,8 +27,8 @@ const addonClassGetFixture string = `
                 "shards": 1,
                 "replicas": 0
             },
-            "allowCreate": ["users", "config", "tls.enabled"],
-            "allowUpdate": ["users", "config", "tls.enabled"]
+            "allow_create": ["users", "config", "tls.enabled"],
+            "allow_update": ["users", "config", "tls.enabled"]
         },
         {
             "name": "small",
@@ -38,8 +38,8 @@ const addonClassGetFixture string = `
                 "shards": 1,
                 "replicas": 1
             },
-            "allowCreate": ["users", "config", "tls.enabled"],
-            "allowUpdate": ["users", "config", "tls.enabled"]
+            "allow_create": ["users", "config", "tls.enabled"],
+            "allow_update": ["users", "config", "tls.enabled"]
         }
     ]
 }
@@ -63,8 +63,8 @@ const addonClassesListFixture string = `
                         "shards": 1,
                         "replicas": 0
                     },
-                    "allowCreate": ["users", "config", "tls.enabled"],
-                    "allowUpdate": ["users", "config", "tls.enabled"]
+                    "allow_create": ["users", "config", "tls.enabled"],
+                    "allow_update": ["users", "config", "tls.enabled"]
                 }
             ]
         }

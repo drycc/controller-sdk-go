@@ -35,7 +35,7 @@ type PtypeState struct {
 // VolumeMount represents a volume mount in a container.
 type VolumeMount struct {
 	Name      string `json:"name"`
-	MountPath string `json:"mountPath"`
+	MountPath string `json:"mount_path"`
 }
 
 // PtypeStates defines a collection of container state.

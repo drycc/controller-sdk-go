@@ -6,8 +6,8 @@ type AddonPlan struct {
 	Description string         `json:"description,omitempty"`
 	Defaults    map[string]any `json:"defaults,omitempty"`
 	Overrides   map[string]any `json:"overrides,omitempty"`
-	AllowCreate []string       `json:"allowCreate,omitempty"`
-	AllowUpdate []string       `json:"allowUpdate,omitempty"`
+	AllowCreate []string       `json:"allow_create,omitempty"`
+	AllowUpdate []string       `json:"allow_update,omitempty"`
 }
 
 // AddonClass is a catalog entry returned by GET /v2/addon-classes.

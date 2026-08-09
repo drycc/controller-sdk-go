@@ -13,7 +13,7 @@ type Port struct {
 	Name       string `json:"name"`
 	Port       int    `json:"port"`
 	Protocol   string `json:"protocol"`
-	TargetPort int    `json:"targetPort"`
+	TargetPort int    `json:"target_port"`
 }
 
 // Services defines a collection of service objects.

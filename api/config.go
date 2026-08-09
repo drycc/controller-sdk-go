@@ -87,17 +87,17 @@ type ConfigHookRequest struct {
 
 // Lifecycle defines actions to take in the container lifecycle.
 type Lifecycle struct {
-	PostStart  **LifecycleHandler `json:"postStart,omitempty"`
-	PreStop    **LifecycleHandler `json:"preStop,omitempty"`
-	StopSignal string             `json:"stopSignal,omitempty"`
+	PostStart  **LifecycleHandler `json:"post_start,omitempty"`
+	PreStop    **LifecycleHandler `json:"pre_stop,omitempty"`
+	StopSignal string             `json:"stop_signal,omitempty"`
 }
 
 // LifecycleHandler defines actions to take in the container lifecycle.
 type LifecycleHandler struct {
 	Exec      *ExecAction      `json:"exec,omitempty"`
-	HTTPGet   *HTTPGetAction   `json:"httpGet,omitempty"`
+	HTTPGet   *HTTPGetAction   `json:"http_get,omitempty"`
 	Sleep     *SleepAction     `json:"sleep,omitempty"`
-	TCPSocket *TCPSocketAction `json:"tcpSocket,omitempty"`
+	TCPSocket *TCPSocketAction `json:"tcp_socket,omitempty"`
 }
 
 // String displays the LifecycleHandler in a readable format.
@@ -119,22 +119,22 @@ TCP Socket Action: {{or .TCPSocket "N/A"}}`)
 
 // Healthcheck defines a container healthcheck.
 type Healthcheck struct {
-	StartupProbe   **ContainerProbe `json:"startupProbe,omitempty"`
-	LivenessProbe  **ContainerProbe `json:"livenessProbe,omitempty"`
-	ReadinessProbe **ContainerProbe `json:"readinessProbe,omitempty"`
+	StartupProbe   **ContainerProbe `json:"startup_probe,omitempty"`
+	LivenessProbe  **ContainerProbe `json:"liveness_probe,omitempty"`
+	ReadinessProbe **ContainerProbe `json:"readiness_probe,omitempty"`
 }
 
 // ContainerProbe defines a container healthcheck probe.
 type ContainerProbe struct {
-	InitialDelaySeconds int              `json:"initialDelaySeconds"`
-	TimeoutSeconds      int              `json:"timeoutSeconds"`
-	PeriodSeconds       int              `json:"periodSeconds"`
-	SuccessThreshold    int              `json:"successThreshold"`
-	FailureThreshold    int              `json:"failureThreshold"`
+	InitialDelaySeconds int              `json:"initial_delay_seconds"`
+	TimeoutSeconds      int              `json:"timeout_seconds"`
+	PeriodSeconds       int              `json:"period_seconds"`
+	SuccessThreshold    int              `json:"success_threshold"`
+	FailureThreshold    int              `json:"failure_threshold"`
 	Exec                *ExecAction      `json:"exec,omitempty"`
 	GRPC                *GRPCAction      `json:"grpc,omitempty"`
-	HTTPGet             *HTTPGetAction   `json:"httpGet,omitempty"`
-	TCPSocket           *TCPSocketAction `json:"tcpSocket,omitempty"`
+	HTTPGet             *HTTPGetAction   `json:"http_get,omitempty"`
+	TCPSocket           *TCPSocketAction `json:"tcp_socket,omitempty"`
 }
 
 // String displays the ContainerProbe in a readable format.
@@ -184,7 +184,7 @@ func (e ExecAction) String() string {
 type HTTPGetAction struct {
 	Path        string    `json:"path,omitempty"`
 	Port        int       `json:"port"`
-	HTTPHeaders []*KVPair `json:"httpHeaders,omitempty"`
+	HTTPHeaders []*KVPair `json:"http_headers,omitempty"`
 }
 
 // String displays the HTTPGetAction in a readable format.

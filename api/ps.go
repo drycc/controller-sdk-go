@@ -67,9 +67,9 @@ type ContainerState struct {
 	Command      []string                  `json:"command"`
 	Args         []string                  `json:"args"`
 	State        map[string]map[string]any `json:"state"`
-	LastState    map[string]map[string]any `json:"lastState"`
+	LastState    map[string]map[string]any `json:"last_state"`
 	Ready        bool                      `json:"ready"`
-	RestartCount int                       `json:"restartCount"`
+	RestartCount int                       `json:"restart_count"`
 	Status       string                    `json:"status"`
 	Reason       string                    `json:"reason"`
 	Message      string                    `json:"message"`

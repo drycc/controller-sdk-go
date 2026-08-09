@@ -43,11 +43,11 @@ const ptypeStateFixture string = `
             "exec": {
                 "command": ["ls", "-la"]
             },
-            "failureThreshold": 3,
-            "initialDelaySeconds": 50,
-            "periodSeconds": 10,
-            "successThreshold": 1,
-            "timeoutSeconds": 50
+            "failure_threshold": 3,
+            "initial_delay_seconds": 50,
+            "period_seconds": 10,
+            "success_threshold": 1,
+            "timeout_seconds": 50
         },
         "limits": {
             "cpu": "1",
@@ -55,7 +55,7 @@ const ptypeStateFixture string = `
         },
         "volume_mounts": [
             {
-                "mountPath": "/data",
+                "mount_path": "/data",
                 "name": "myvolume"
             }
         ],

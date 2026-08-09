@@ -30,7 +30,7 @@ const routesFixture string = `
                 }
             ],
             "rules": [{
-				"backendRefs": [{
+				"backend_refs": [{
                     "kind": "Service",
                     "name": "example-go",
                     "port": 5000,
@@ -41,9 +41,9 @@ const routesFixture string = `
     ]
 }`
 
-const routeApplyExpected string = `{"app":"example-go","name":"example-go","kind":"HTTPRoute","parent_refs":[{"name":"example-go","port":80}],"rules":[{"backendRefs":[{"kind":"Service","name":"example-go","port":5000,"weight":100}]}]}`
+const routeApplyExpected string = `{"app":"example-go","name":"example-go","kind":"HTTPRoute","parent_refs":[{"name":"example-go","port":80}],"rules":[{"backend_refs":[{"kind":"Service","name":"example-go","port":5000,"weight":100}]}]}`
 
-const routeInfoResponse string = `{"name":"example-go","kind":"HTTPRoute","parent_refs":[{"name":"example-go","port":80}],"rules":[{"backendRefs":[{"kind":"Service","name":"example-go","port":5000,"weight":100}]}]}`
+const routeInfoResponse string = `{"name":"example-go","kind":"HTTPRoute","parent_refs":[{"name":"example-go","port":80}],"rules":[{"backend_refs":[{"kind":"Service","name":"example-go","port":5000,"weight":100}]}]}`
 
 type fakeHTTPServer struct{}
 
@@ -107,7 +107,7 @@ func TestRoutesList(t *testing.T) {
 			},
 			Rules: []api.RouteRule{
 				{
-					"backendRefs": []map[string]any{{
+					"backend_refs": []map[string]any{{
 						"kind":   "Service",
 						"name":   "example-go",
 						"port":   5000,
@@ -160,7 +160,7 @@ func TestRoutesApply(t *testing.T) {
 		},
 		Rules: []api.RouteRule{
 			{
-				"backendRefs": []map[string]any{{
+				"backend_refs": []map[string]any{{
 					"kind":   "Service",
 					"name":   "example-go",
 					"port":   5000,

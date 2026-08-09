@@ -33,7 +33,7 @@ const configFixture string = `
 		"value": "bar"
 	  }
 	],
-	"Limits": {
+	"limits": {
 		"web": "std1.xlarge.c1m1"
 	},
 	"tags": {
