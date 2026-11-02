@@ -31,7 +31,6 @@ type Routes []Route
 
 // RouteUpdateRequest is the structure of PUT /v2/apps/<app_id>/routes/<name>/.
 type RouteUpdateRequest struct {
-	App        string           `json:"app"`
 	Name       string           `json:"name"`
 	Kind       string           `json:"kind"`
 	ParentRefs []RouteParentRef `json:"parent_refs"`

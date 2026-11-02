@@ -27,7 +27,6 @@ type Gateways []Gateway
 
 // GatewayUpdateRequest is the structure of PUT /v2/apps/<app id>/gateways/<name>/.
 type GatewayUpdateRequest struct {
-	App   string        `json:"app"`
 	Name  string        `json:"name"`
 	Ports []GatewayPort `json:"ports"`
 }

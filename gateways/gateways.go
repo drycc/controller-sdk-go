@@ -29,7 +29,6 @@ func List(c *drycc.Client, appID string, results int) (api.Gateways, int, error)
 // Apply creates or updates a gateway for an app.
 func Apply(c *drycc.Client, appID string, req api.GatewayUpdateRequest) (api.GatewayInfo, error) {
 	name := req.Name
-	req.App = appID
 	u := fmt.Sprintf("/v2/apps/%s/gateways/%s/", appID, name)
 
 	body, err := json.Marshal(req)

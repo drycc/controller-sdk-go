@@ -41,7 +41,7 @@ const routesFixture string = `
     ]
 }`
 
-const routeApplyExpected string = `{"app":"example-go","name":"example-go","kind":"HTTPRoute","parent_refs":[{"name":"example-go","port":80}],"rules":[{"backend_refs":[{"kind":"Service","name":"example-go","port":5000,"weight":100}]}]}`
+const routeApplyExpected string = `{"name":"example-go","kind":"HTTPRoute","parent_refs":[{"name":"example-go","port":80}],"rules":[{"backend_refs":[{"kind":"Service","name":"example-go","port":5000,"weight":100}]}]}`
 
 const routeInfoResponse string = `{"name":"example-go","kind":"HTTPRoute","parent_refs":[{"name":"example-go","port":80}],"rules":[{"backend_refs":[{"kind":"Service","name":"example-go","port":5000,"weight":100}]}]}`
 

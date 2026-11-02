@@ -29,7 +29,6 @@ func List(c *drycc.Client, appID string, results int) (api.Routes, int, error) {
 // Apply creates or updates a route for an app.
 func Apply(c *drycc.Client, appID string, req api.RouteUpdateRequest) (api.RouteInfo, error) {
 	name := req.Name
-	req.App = appID
 	u := fmt.Sprintf("/v2/apps/%s/routes/%s/", appID, name)
 
 	body, err := json.Marshal(req)

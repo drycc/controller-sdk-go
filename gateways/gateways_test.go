@@ -44,7 +44,7 @@ const gatewaysFixture string = `
 }`
 
 const (
-	gatewayApplyExpected string = `{"app":"example-go","name":"example-go","ports":[{"port":80,"protocol":"HTTP"},{"port":443,"protocol":"HTTPS"}]}`
+	gatewayApplyExpected string = `{"name":"example-go","ports":[{"port":80,"protocol":"HTTP"},{"port":443,"protocol":"HTTPS"}]}`
 	gatewayInfoResponse  string = `{"name":"example-go","ports":[{"port":80,"protocol":"HTTP"},{"port":443,"protocol":"HTTPS"}]}`
 )
 
