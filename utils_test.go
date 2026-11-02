@@ -63,50 +63,48 @@ func TestParseEnv(t *testing.T) {
 
 func TestParseDryccfile(t *testing.T) {
 	webPipeline := `
-kind: pipeline
-ptype: web
-build:
-  docker: Dockerfile
-  arg:
-    CODENAME: bookworm
-env:
-  VERSION: 1.2.1
-run:
-  command:
-  - ./deployment-tasks.sh
-  image: worker
-  timeout: 100
-config:
-- jvmconfig
-deploy:
-  command:
-  - bash
-  - -ec
-  args:
-  - bundle exec puma -C config/puma.rb
+ptype = "web"
+config = ["jvmconfig"]
+
+[build]
+docker = "Dockerfile"
+
+[build.arg]
+CODENAME = "bookworm"
+
+[env]
+VERSION = "1.2.1"
+
+[run]
+command = ["./deployment-tasks.sh"]
+image = "worker"
+timeout = 100
+
+[deploy]
+command = ["bash", "-ec"]
+args = ["bundle exec puma -C config/puma.rb"]
 `
 	taskPipeline := `
-kind: pipeline
-ptype: task
-build:
-  docker: Dockerfile
-  arg:
-    CODENAME: bookworm
-env:
-  VERSION: 1.2.1
-run:
-  command:
-  - ./deployment-tasks.sh
-  image: worker
-  timeout: 100
-config:
-- jvmconfig
-deploy:
-  command:
-  - bash
-  - -ec
-  args:
-  - bundle exec puma -C config/puma.rb
+ptype = "task"
+config = ["jvmconfig"]
+
+[build]
+docker = "Dockerfile"
+
+[build.arg]
+CODENAME = "bookworm"
+
+[env]
+VERSION = "1.2.1"
+
+[run]
+command = ["./deployment-tasks.sh"]
+image = "worker"
+timeout = 100
+
+[deploy]
+command = ["bash", "-ec"]
+args = ["bundle exec puma -C config/puma.rb"]
 `
 
 	tmp, err := os.MkdirTemp("", "drycc")
@@ -117,8 +115,8 @@ deploy:
 
 	configDir := filepath.Join(tmp, "config")
 	os.MkdirAll(configDir, 0o777)
-	os.WriteFile(filepath.Join(tmp, "web.yml"), []byte(webPipeline), 0o777)
-	os.WriteFile(filepath.Join(tmp, "task.yaml"), []byte(taskPipeline), 0o777)
+	os.WriteFile(filepath.Join(tmp, "web.toml"), []byte(webPipeline), 0o777)
+	os.WriteFile(filepath.Join(tmp, "task.toml"), []byte(taskPipeline), 0o777)
 	os.WriteFile(filepath.Join(configDir, "global"), []byte("DEBUG=true\n"), 0o777)
 	os.WriteFile(filepath.Join(configDir, "web"), []byte("PORT=8000\nJVM_OPTIONS=-Xms16G\n"), 0o777)
 
@@ -144,11 +142,11 @@ deploy:
 	}
 
 	if pipeline, ok := dryccfile["pipeline"]; ok {
-		if _, ok := pipeline.(map[string]any)["web.yml"]; !ok {
-			t.Error("web.yml not found")
+		if _, ok := pipeline.(map[string]any)["web.toml"]; !ok {
+			t.Error("web.toml not found")
 		}
-		if _, ok := pipeline.(map[string]any)["task.yaml"]; !ok {
-			t.Error("task.yaml not found")
+		if _, ok := pipeline.(map[string]any)["task.toml"]; !ok {
+			t.Error("task.toml not found")
 		}
 	} else {
 		t.Error("Pipeline not found")

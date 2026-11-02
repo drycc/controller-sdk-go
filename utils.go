@@ -7,7 +7,7 @@ import (
 	"regexp"
 	"strings"
 
-	yaml "gopkg.in/yaml.v3"
+	"github.com/BurntSushi/toml"
 )
 
 // ParseEnv parses environment variables from a file.
@@ -52,10 +52,10 @@ func ParseDryccfile(dryccpath string) (map[string]any, error) {
 	pipeline := make(map[string]any)
 	if entries, err := os.ReadDir(dryccpath); err == nil {
 		for _, entry := range entries {
-			if !entry.IsDir() && (strings.HasSuffix(entry.Name(), ".yaml") || strings.HasSuffix(entry.Name(), ".yml")) {
+			if !entry.IsDir() && strings.HasSuffix(entry.Name(), ".toml") {
 				data := make(map[string]any)
 				if bytes, err := os.ReadFile(path.Join(dryccpath, entry.Name())); err == nil {
-					if err = yaml.Unmarshal([]byte(bytes), data); err == nil {
+					if err = toml.Unmarshal([]byte(bytes), &data); err == nil {
 						pipeline[entry.Name()] = data
 					} else {
 						return nil, err
