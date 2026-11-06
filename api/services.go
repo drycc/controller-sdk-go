@@ -1,16 +1,17 @@
 package api
 
-// Service is the structure of the service object.
+// Service is the structure of an app's service.
 type Service struct {
-	Name   string `json:"name"`
-	Domain string `json:"domain"`
-	Ptype  string `json:"ptype"`
-	Ports  []Port `json:"ports"`
+	App     string        `json:"app,omitempty"`
+	Created string        `json:"created,omitempty"`
+	Updated string        `json:"updated,omitempty"`
+	Domain  string        `json:"domain,omitempty"`
+	Ptype   string        `json:"ptype,omitempty"`
+	Ports   []ServicePort `json:"ports,omitempty"`
 }
 
-// Port represents a port configuration in a service.
-type Port struct {
-	Name       string `json:"name"`
+// ServicePort represents a port in a service apply request.
+type ServicePort struct {
 	Port       int    `json:"port"`
 	Protocol   string `json:"protocol"`
 	TargetPort int    `json:"target_port"`
@@ -23,17 +24,16 @@ func (s Services) Len() int           { return len(s) }
 func (s Services) Swap(i, j int)      { s[i], s[j] = s[j], s[i] }
 func (s Services) Less(i, j int) bool { return s[i].Ptype < s[j].Ptype }
 
-// ServiceCreateUpdateRequest is the structure of POST /v2/app/<app id>/services/.
-type ServiceCreateUpdateRequest struct {
-	Ptype      string `json:"ptype"`
-	Port       int    `json:"port"`
-	Protocol   string `json:"protocol"`
-	TargetPort int    `json:"target_port"`
+// ServiceUpdateRequest is the structure of PUT /v2/apps/<app id>/services/<ptype>/.
+type ServiceUpdateRequest struct {
+	Ptype string        `json:"ptype"`
+	Ports []ServicePort `json:"ports"`
 }
 
-// ServiceDeleteRequest is the structure of DELETE /v2/app/<app id>/services/.
-type ServiceDeleteRequest struct {
-	Ptype    string `json:"ptype"`
-	Port     int    `json:"port"`
-	Protocol string `json:"protocol"`
+// ServiceInfo is the structure returned by GET /v2/apps/<app id>/services/<ptype>/.
+type ServiceInfo struct {
+	App    string        `json:"app,omitempty"`
+	Domain string        `json:"domain,omitempty"`
+	Ptype  string        `json:"ptype"`
+	Ports  []ServicePort `json:"ports"`
 }

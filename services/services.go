@@ -4,82 +4,77 @@ package services
 import (
 	"encoding/json"
 	"fmt"
-	"io"
 
 	drycc "github.com/drycc/controller-sdk-go"
 	"github.com/drycc/controller-sdk-go/api"
 )
 
 // List services registered with an app.
-func List(c *drycc.Client, appID string) (api.Services, error) {
+func List(c *drycc.Client, appID string, results int) (api.Services, int, error) {
 	u := fmt.Sprintf("/v2/apps/%s/services/", appID)
-	res, reqErr := c.Request("GET", u, nil)
+	body, count, reqErr := c.LimitedRequest(u, results)
 
 	if reqErr != nil && !drycc.IsErrAPIMismatch(reqErr) {
-		return []api.Service{}, reqErr
-	}
-
-	defer res.Body.Close()
-
-	body, err := io.ReadAll(res.Body)
-	if err != nil {
-		return []api.Service{}, err
-	}
-
-	r := make(map[string]any)
-	if err = json.Unmarshal([]byte(body), &r); err != nil {
-		return []api.Service{}, err
-	}
-
-	out, err := json.Marshal(r["services"].([]any))
-	if err != nil {
-		return []api.Service{}, err
+		return []api.Service{}, -1, reqErr
 	}
 
 	var services []api.Service
-	if err := json.Unmarshal([]byte(out), &services); err != nil {
-		return []api.Service{}, err
+	if err := json.Unmarshal([]byte(body), &services); err != nil {
+		return []api.Service{}, -1, err
 	}
 
-	return services, reqErr
+	return services, count, reqErr
 }
 
-// New adds a new service to an app. App should already exists.
-// Service is the way to route some traffic matching given URL pattern to worker different than `web`
-// Ptype - name of the process in Procfile (i.e. <process type> from the `<process type>: <command>`), e.g. `webhooks`
-// for more about Procfile see this https://devcenter.heroku.com/articles/procfile
-// Ptype and pathPattern are mandatory and should have valid values.
-func New(c *drycc.Client, appID string, Ptype string, port int, protocol string, targetPort int) error {
-	u := fmt.Sprintf("/v2/apps/%s/services/", appID)
-
-	req := api.ServiceCreateUpdateRequest{Ptype: Ptype, Port: port, Protocol: protocol, TargetPort: targetPort}
+// Apply creates or updates a service for an app.
+func Apply(c *drycc.Client, appID string, req api.ServiceUpdateRequest) (api.ServiceInfo, error) {
+	ptype := req.Ptype
+	u := fmt.Sprintf("/v2/apps/%s/services/%s/", appID, ptype)
 
 	body, err := json.Marshal(req)
 	if err != nil {
-		return err
+		return api.ServiceInfo{}, err
 	}
 
-	res, reqErr := c.Request("POST", u, body)
+	res, reqErr := c.Request("PUT", u, body)
 	if reqErr != nil && !drycc.IsErrAPIMismatch(reqErr) {
-		return reqErr
+		return api.ServiceInfo{}, reqErr
 	}
 	defer res.Body.Close()
-	return reqErr
-}
 
-// Delete service from app
-// If given service for the app doesn't exists then error returned
-func Delete(c *drycc.Client, appID string, Ptype string, protocol string, port int) error {
-	u := fmt.Sprintf("/v2/apps/%s/services/", appID)
-
-	req := api.ServiceDeleteRequest{Ptype: Ptype, Protocol: protocol, Port: port}
-
-	body, err := json.Marshal(req)
-	if err != nil {
-		return err
+	var info api.ServiceInfo
+	if err := json.NewDecoder(res.Body).Decode(&info); err != nil {
+		return api.ServiceInfo{}, err
 	}
 
-	_, err = c.Request("DELETE", u, body)
+	return info, reqErr
+}
 
+// Info retrieves information about a service.
+func Info(c *drycc.Client, appID string, ptype string) (api.ServiceInfo, error) {
+	u := fmt.Sprintf("/v2/apps/%s/services/%s/", appID, ptype)
+
+	res, err := c.Request("GET", u, nil)
+	if err != nil {
+		return api.ServiceInfo{}, err
+	}
+	defer res.Body.Close()
+
+	var info api.ServiceInfo
+	if err := json.NewDecoder(res.Body).Decode(&info); err != nil {
+		return api.ServiceInfo{}, err
+	}
+
+	return info, nil
+}
+
+// Delete removes a service from an app.
+func Delete(c *drycc.Client, appID string, ptype string) error {
+	u := fmt.Sprintf("/v2/apps/%s/services/%s/", appID, ptype)
+
+	res, err := c.Request("DELETE", u, nil)
+	if err == nil {
+		res.Body.Close()
+	}
 	return err
 }
