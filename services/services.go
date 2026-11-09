@@ -28,8 +28,10 @@ func List(c *drycc.Client, appID string, results int) (api.Services, int, error)
 
 // Apply creates or updates a service for an app.
 func Apply(c *drycc.Client, appID string, req api.ServiceUpdateRequest) (api.ServiceInfo, error) {
-	ptype := req.Ptype
-	u := fmt.Sprintf("/v2/apps/%s/services/%s/", appID, ptype)
+	if req.Name == "" {
+		return api.ServiceInfo{}, fmt.Errorf("service name is required")
+	}
+	u := fmt.Sprintf("/v2/apps/%s/services/%s/", appID, req.Name)
 
 	body, err := json.Marshal(req)
 	if err != nil {
@@ -51,8 +53,8 @@ func Apply(c *drycc.Client, appID string, req api.ServiceUpdateRequest) (api.Ser
 }
 
 // Info retrieves information about a service.
-func Info(c *drycc.Client, appID string, ptype string) (api.ServiceInfo, error) {
-	u := fmt.Sprintf("/v2/apps/%s/services/%s/", appID, ptype)
+func Info(c *drycc.Client, appID string, name string) (api.ServiceInfo, error) {
+	u := fmt.Sprintf("/v2/apps/%s/services/%s/", appID, name)
 
 	res, err := c.Request("GET", u, nil)
 	if err != nil {
@@ -69,8 +71,8 @@ func Info(c *drycc.Client, appID string, ptype string) (api.ServiceInfo, error) 
 }
 
 // Delete removes a service from an app.
-func Delete(c *drycc.Client, appID string, ptype string) error {
-	u := fmt.Sprintf("/v2/apps/%s/services/%s/", appID, ptype)
+func Delete(c *drycc.Client, appID string, name string) error {
+	u := fmt.Sprintf("/v2/apps/%s/services/%s/", appID, name)
 
 	res, err := c.Request("DELETE", u, nil)
 	if err == nil {

@@ -23,6 +23,7 @@ const servicesFixture string = `
             "created": "2023-04-19T00:00:00UTC",
             "updated": "2023-04-19T00:00:00UTC",
             "domain": "example-go-worker.example-go.svc",
+            "name": "example-go-worker",
             "ptype": "worker",
             "ports": [
                 {
@@ -37,8 +38,8 @@ const servicesFixture string = `
 }`
 
 const (
-	serviceApplyExpected string = `{"ptype":"worker","ports":[{"port":5000,"protocol":"TCP","target_port":5000},{"port":80,"protocol":"UDP","target_port":8080}]}`
-	serviceInfoResponse  string = `{"app":"example-go","domain":"example-go-worker.example-go.svc","ptype":"worker","ports":[{"name":"tcp-5000","port":5000,"protocol":"TCP","target_port":5000},{"name":"udp-80","port":80,"protocol":"UDP","target_port":8080}]}`
+	serviceApplyExpected string = `{"name":"example-go-worker","ptype":"worker","ports":[{"port":5000,"protocol":"TCP","target_port":5000},{"port":80,"protocol":"UDP","target_port":8080}]}`
+	serviceInfoResponse  string = `{"app":"example-go","domain":"example-go-worker.example-go.svc","name":"example-go-worker","ptype":"worker","ports":[{"name":"tcp-5000","port":5000,"protocol":"TCP","target_port":5000},{"name":"udp-80","port":80,"protocol":"UDP","target_port":8080}]}`
 )
 
 type fakeHTTPServer struct{}
@@ -51,7 +52,7 @@ func (fakeHTTPServer) ServeHTTP(res http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	if req.URL.Path == "/v2/apps/example-go/services/worker/" && req.Method == "PUT" {
+	if req.URL.Path == "/v2/apps/example-go/services/example-go-worker/" && req.Method == "PUT" {
 		body, err := io.ReadAll(req.Body)
 		if err != nil {
 			fmt.Println(err)
@@ -70,12 +71,12 @@ func (fakeHTTPServer) ServeHTTP(res http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	if req.URL.Path == "/v2/apps/example-go/services/worker/" && req.Method == "GET" {
+	if req.URL.Path == "/v2/apps/example-go/services/example-go-worker/" && req.Method == "GET" {
 		res.Write([]byte(serviceInfoResponse))
 		return
 	}
 
-	if req.URL.Path == "/v2/apps/example-go/services/worker/" && req.Method == "DELETE" {
+	if req.URL.Path == "/v2/apps/example-go/services/example-go-worker/" && req.Method == "DELETE" {
 		res.WriteHeader(http.StatusNoContent)
 		return
 	}
@@ -94,6 +95,7 @@ func TestServicesList(t *testing.T) {
 			Created: "2023-04-19T00:00:00UTC",
 			Updated: "2023-04-19T00:00:00UTC",
 			Domain:  "example-go-worker.example-go.svc",
+			Name:    "example-go-worker",
 			Ptype:   "worker",
 			Ports: []api.ServicePort{
 				{Port: 5000, Protocol: "TCP", TargetPort: 5000},
@@ -134,6 +136,7 @@ func TestServicesApply(t *testing.T) {
 	}
 
 	req := api.ServiceUpdateRequest{
+		Name:  "example-go-worker",
 		Ptype: "worker",
 		Ports: []api.ServicePort{
 			{Port: 5000, Protocol: "TCP", TargetPort: 5000},
@@ -145,11 +148,23 @@ func TestServicesApply(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
+	if info.Name != "example-go-worker" {
+		t.Fatalf("Unexpected name %s", info.Name)
+	}
 	if info.Domain != "example-go-worker.example-go.svc" {
 		t.Fatalf("Unexpected domain %s", info.Domain)
 	}
 	if len(info.Ports) != 2 {
 		t.Fatalf("Expected 2 ports, got %d", len(info.Ports))
+	}
+}
+
+func TestServicesApplyRequiresName(t *testing.T) {
+	t.Parallel()
+
+	_, err := Apply(nil, "example-go", api.ServiceUpdateRequest{Ptype: "worker"})
+	if err == nil || err.Error() != "service name is required" {
+		t.Fatalf("expected service name is required, got %v", err)
 	}
 }
 
@@ -165,9 +180,12 @@ func TestServicesInfo(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	info, err := Info(drycc, "example-go", "worker")
+	info, err := Info(drycc, "example-go", "example-go-worker")
 	if err != nil {
 		t.Fatal(err)
+	}
+	if info.Name != "example-go-worker" {
+		t.Fatalf("Expected example-go-worker, got %s", info.Name)
 	}
 	if info.Ptype != "worker" {
 		t.Fatalf("Expected worker, got %s", info.Ptype)
@@ -189,7 +207,7 @@ func TestServicesRemove(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	if err = Delete(drycc, "example-go", "worker"); err != nil {
+	if err = Delete(drycc, "example-go", "example-go-worker"); err != nil {
 		t.Fatal(err)
 	}
 }
