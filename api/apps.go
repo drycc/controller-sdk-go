@@ -6,6 +6,7 @@ type App struct {
 	Created   string `json:"created"`
 	ID        string `json:"id"`
 	UID       int    `json:"uid"`
+	Archived  bool   `json:"archived"`
 	Workspace string `json:"workspace"`
 	Updated   string `json:"updated"`
 	UUID      string `json:"uuid"`

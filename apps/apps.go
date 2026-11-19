@@ -94,6 +94,30 @@ func Run(c *drycc.Client, appID string, command string, volumes map[string]any, 
 	return reqErr
 }
 
+// Archive archives an app.
+func Archive(c *drycc.Client, appID string) error {
+	u := fmt.Sprintf("/v2/apps/%s/archive", appID)
+
+	res, reqErr := c.Request("POST", u, nil)
+	if reqErr != nil && !drycc.IsErrAPIMismatch(reqErr) {
+		return reqErr
+	}
+	defer res.Body.Close()
+	return reqErr
+}
+
+// Unarchive unarchives an app.
+func Unarchive(c *drycc.Client, appID string) error {
+	u := fmt.Sprintf("/v2/apps/%s/unarchive", appID)
+
+	res, reqErr := c.Request("POST", u, nil)
+	if reqErr != nil && !drycc.IsErrAPIMismatch(reqErr) {
+		return reqErr
+	}
+	defer res.Body.Close()
+	return reqErr
+}
+
 // Delete an app.
 func Delete(c *drycc.Client, appID string) error {
 	u := fmt.Sprintf("/v2/apps/%s/", appID)

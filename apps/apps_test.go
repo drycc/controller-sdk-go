@@ -14,6 +14,7 @@ import (
 
 const appFixture string = `
 {
+    "archived": false,
     "created": "2014-01-01T00:00:00UTC",
     "id": "example-go",
 	"uid": 1001,
@@ -30,6 +31,7 @@ const appsFixture string = `
     "previous": null,
     "results": [
         {
+            "archived": true,
             "created": "2014-01-01T00:00:00UTC",
             "id": "example-go",
 			"uid": 1001,
@@ -124,6 +126,23 @@ func (f *fakeHTTPServer) ServeHTTP(res http.ResponseWriter, req *http.Request) {
 		return
 	}
 
+	if (req.URL.Path == "/v2/apps/example-go/archive" || req.URL.Path == "/v2/apps/example-go/unarchive") && req.Method == "POST" {
+		body, err := io.ReadAll(req.Body)
+		if err != nil {
+			fmt.Println(err)
+			res.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+		if len(body) != 0 {
+			fmt.Printf("Expected empty body, Got '%s'\n", body)
+			res.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+
+		res.WriteHeader(http.StatusNoContent)
+		return
+	}
+
 	if req.URL.Path == "/v2/apps/example-go/" && req.Method == "PATCH" {
 		body, err := io.ReadAll(req.Body)
 		if err != nil {
@@ -157,6 +176,7 @@ func TestAppsCreate(t *testing.T) {
 	defer server.Close()
 
 	expected := api.App{
+		Archived:  false,
 		ID:        "example-go",
 		UID:       1001,
 		Created:   "2014-01-01T00:00:00UTC",
@@ -190,6 +210,7 @@ func TestAppsGet(t *testing.T) {
 	defer server.Close()
 
 	expected := api.App{
+		Archived:  false,
 		ID:        "example-go",
 		UID:       1001,
 		Created:   "2014-01-01T00:00:00UTC",
@@ -247,6 +268,40 @@ func TestAppsRun(t *testing.T) {
 	}
 }
 
+func TestAppsArchive(t *testing.T) {
+	t.Parallel()
+
+	handler := fakeHTTPServer{}
+	server := httptest.NewServer(&handler)
+	defer server.Close()
+
+	drycc, err := drycc.New(false, server.URL, "abc")
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if err := Archive(drycc, "example-go"); err != nil {
+		t.Fatal(err)
+	}
+}
+
+func TestAppsUnarchive(t *testing.T) {
+	t.Parallel()
+
+	handler := fakeHTTPServer{}
+	server := httptest.NewServer(&handler)
+	defer server.Close()
+
+	drycc, err := drycc.New(false, server.URL, "abc")
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if err := Unarchive(drycc, "example-go"); err != nil {
+		t.Fatal(err)
+	}
+}
+
 func TestAppsList(t *testing.T) {
 	t.Parallel()
 
@@ -256,6 +311,7 @@ func TestAppsList(t *testing.T) {
 
 	expected := api.Apps{
 		{
+			Archived:  true,
 			ID:        "example-go",
 			UID:       1001,
 			Created:   "2014-01-01T00:00:00UTC",

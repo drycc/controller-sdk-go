@@ -6,13 +6,15 @@
 
 ## Project Overview
 
-Go SDK for interacting with the Drycc controller API. Part of a three-repo stack:
+Go SDK for interacting with the Drycc controller API. The controller and its downstream consumers form this stack:
 
 ```
 controller (Python/Django API server)  -->  controller-sdk-go (this repo, Go SDK)  -->  workflow-cli (Go CLI)
+                                                   |
+                                                   +--> builder (Go builder)
 ```
 
-The controller defines the REST API. This SDK provides typed Go structs and HTTP client methods for that API. The workflow-cli consumes the SDK to build the user-facing CLI.
+The controller defines the REST API. This SDK provides typed Go structs and HTTP client methods for that API. Both workflow-cli and builder consume the SDK.
 
 - **Module**: `github.com/drycc/controller-sdk-go`
 - **Go version**: 1.26 (see `go.mod`)
@@ -326,14 +328,17 @@ Woodpecker CI (`.woodpecker/test-linux.yml`): runs `make bootstrap test` then up
 
 - No `replace` directives in `go.mod`.
 - Dependencies are vendored into `vendor/`.
-- Published by commit hash - downstream consumers (workflow-cli) pin to a specific commit.
+- Published by commit hash - downstream consumers (`builder` and `workflow-cli`) pin to a specific commit.
+- **Downstream sync contract**: Every change to this repository must be propagated to both `../builder` and `../workflow-cli`. A change is not complete until both consumers pin the same new SDK commit and their builds/tests pass. This applies to all SDK changes, not only controller API changes.
 - **Update workflow**: When the controller API changes:
   1. Update types in `api/` package (add/modify json tags to match controller response)
   2. Update domain packages if new endpoints are added
   3. Update/add tests with matching mock JSON
   4. Run `go test ./...` to verify
   5. Commit and push
-  6. Update workflow-cli's `go.mod` to pin the new commit hash
+  6. In both `../builder` and `../workflow-cli`, run `go get github.com/drycc/controller-sdk-go@<new-sha>` and `go mod vendor`
+  7. Commit `go.mod` and `go.sum` in both consumers; `vendor/` is gitignored and must not be committed
+  8. Run both consumers' builds/tests to verify the synchronized dependency
 
 ### Key Dependencies
 
