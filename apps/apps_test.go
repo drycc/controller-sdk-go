@@ -43,6 +43,28 @@ const appsFixture string = `
     ]
 }`
 
+const appQuotaFixture string = `
+{
+    "name": "drycc-app",
+    "hard": {
+        "pods": "50",
+        "requests.cpu": "10"
+    },
+    "used": {
+        "pods": "12",
+        "requests.cpu": "2500m"
+    }
+}`
+
+const appQuotaEmptyUsedFixture string = `
+{
+    "name": "drycc-app",
+    "hard": {
+        "pods": "50"
+    },
+    "used": {}
+}`
+
 const (
 	appCreateExpected      string = `{"id":"example-go","workspace":"test"}`
 	appCreateEmptyExpected string = `{"workspace":"test"}`
@@ -98,6 +120,16 @@ func (f *fakeHTTPServer) ServeHTTP(res http.ResponseWriter, req *http.Request) {
 
 	if req.URL.Path == "/v2/apps/example-go/" && req.Method == "GET" {
 		res.Write([]byte(appFixture))
+		return
+	}
+
+	if req.URL.Path == "/v2/apps/example-go/quota" && req.Method == "GET" {
+		res.Write([]byte(appQuotaFixture))
+		return
+	}
+
+	if req.URL.Path == "/v2/apps/example-go-empty/quota" && req.Method == "GET" {
+		res.Write([]byte(appQuotaEmptyUsedFixture))
 		return
 	}
 
@@ -225,6 +257,68 @@ func TestAppsGet(t *testing.T) {
 	}
 
 	actual, err := Get(drycc, "example-go")
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if !reflect.DeepEqual(expected, actual) {
+		t.Errorf("Expected %v, Got %v", expected, actual)
+	}
+}
+
+func TestAppsQuota(t *testing.T) {
+	t.Parallel()
+
+	handler := fakeHTTPServer{}
+	server := httptest.NewServer(&handler)
+	defer server.Close()
+
+	expected := api.AppQuota{
+		Name: "drycc-app",
+		Hard: map[string]string{
+			"pods":         "50",
+			"requests.cpu": "10",
+		},
+		Used: map[string]string{
+			"pods":         "12",
+			"requests.cpu": "2500m",
+		},
+	}
+
+	drycc, err := drycc.New(false, server.URL, "abc")
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	actual, err := Quota(drycc, "example-go")
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if !reflect.DeepEqual(expected, actual) {
+		t.Errorf("Expected %v, Got %v", expected, actual)
+	}
+}
+
+func TestAppsQuotaEmptyUsed(t *testing.T) {
+	t.Parallel()
+
+	handler := fakeHTTPServer{}
+	server := httptest.NewServer(&handler)
+	defer server.Close()
+
+	expected := api.AppQuota{
+		Name: "drycc-app",
+		Hard: map[string]string{"pods": "50"},
+		Used: map[string]string{},
+	}
+
+	drycc, err := drycc.New(false, server.URL, "abc")
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	actual, err := Quota(drycc, "example-go-empty")
 	if err != nil {
 		t.Fatal(err)
 	}

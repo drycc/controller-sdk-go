@@ -69,6 +69,24 @@ func Get(c *drycc.Client, appID string) (api.App, error) {
 	return app, reqErr
 }
 
+// Quota gets an app's resource quota and current usage.
+func Quota(c *drycc.Client, appID string) (api.AppQuota, error) {
+	u := fmt.Sprintf("/v2/apps/%s/quota", appID)
+
+	res, reqErr := c.Request("GET", u, nil)
+	if reqErr != nil && !drycc.IsErrAPIMismatch(reqErr) {
+		return api.AppQuota{}, reqErr
+	}
+	defer res.Body.Close()
+
+	quota := api.AppQuota{}
+	if err := json.NewDecoder(res.Body).Decode(&quota); err != nil {
+		return api.AppQuota{}, err
+	}
+
+	return quota, reqErr
+}
+
 // Run a one-time command in your app. This will start a kubernetes job with the
 // same container image and environment as the rest of the app.
 func Run(c *drycc.Client, appID string, command string, volumes map[string]any, timeout, expires uint32) error {

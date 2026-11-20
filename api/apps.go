@@ -12,6 +12,13 @@ type App struct {
 	UUID      string `json:"uuid"`
 }
 
+// AppQuota is the resource quota and current usage for an app.
+type AppQuota struct {
+	Name string            `json:"name"`
+	Hard map[string]string `json:"hard"`
+	Used map[string]string `json:"used"`
+}
+
 // Apps defines a collection of app objects.
 type Apps []App
 
